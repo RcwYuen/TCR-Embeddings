@@ -2,3 +2,8 @@ data
 venv-laptop
 venv
 *prototyping*
+**__pycache__**
+
+tessa/TESSA
+tcrbert/model
+tcrbert/tokenizer
