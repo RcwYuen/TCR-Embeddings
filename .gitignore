@@ -5,7 +5,7 @@ data
 *prototyping*
 **__pycache__**
 
-tessa/TESSA
+embed/physicochemical/tessa/TESSA
 embed/llm/tcrbert-model
 embed/llm/tcrbert-tokenizer
 
