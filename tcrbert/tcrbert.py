@@ -7,8 +7,9 @@ import pandas as pd
 import torch
 import numpy as np
 
-tokenizer = AutoTokenizer.from_pretrained(Path.cwd() / "tokenizer")
-bertmodel = AutoModelForMaskedLM.from_pretrained(Path.cwd() / "model").bert
+dir = Path(__file__).resolve().parent
+tokenizer = AutoTokenizer.from_pretrained(dir / "tokenizer")
+bertmodel = AutoModelForMaskedLM.from_pretrained(dir / "model").bert
 bertmodel = bertmodel.to("cuda") if torch.cuda.is_available() else bertmodel
 
 
