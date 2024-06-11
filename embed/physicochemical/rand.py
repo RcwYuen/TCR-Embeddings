@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from physicochemical import create_random
+from embed.physicochemical import create_random
 
 def _get_df(fname):
     df = pd.read_csv(fname, delimiter = "\t").set_index("amino.acid").sort_index()
