@@ -1,9 +1,12 @@
-data
 venv-laptop
 venv
+
+data
 *prototyping*
 **__pycache__**
 
 tessa/TESSA
 tcrbert/model
 tcrbert/tokenizer
+
+*.tsv

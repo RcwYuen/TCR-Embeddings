@@ -23,7 +23,7 @@ def aamapping(peptideSeq,aa_dict,encode_dim):
 def datasetMap(dataset,aa_dict,encode_dim):
     return np.array([aamapping(seq, aa_dict, encode_dim) for seq in dataset])
 
-def embed(df):
+def calc_vector_representations(df, batchsize = None):
     tcr = [i for i in df["CDR3A"].tolist() + df["CDR3B"].tolist() if not pd.isna(i)]
     aa_dict = pd.read_csv(aa_dict_dir).set_index("Amino acid")
     TCR_contigs=datasetMap(tcr,aa_dict,encode_dim)
