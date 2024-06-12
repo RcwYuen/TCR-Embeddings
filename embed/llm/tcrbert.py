@@ -6,6 +6,13 @@ from pathlib import Path
 import pandas as pd
 import torch
 import numpy as np
+from dotenv import load_dotenv
+import os, sys
+
+load_dotenv()
+python_path = os.getenv('PYTHONPATH')
+if python_path:
+    sys.path.append(python_path)
 
 dir = Path(__file__).resolve().parent
 tokenizer = AutoTokenizer.from_pretrained(dir / "tcrbert-tokenizer")
