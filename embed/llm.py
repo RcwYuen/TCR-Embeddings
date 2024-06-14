@@ -1,23 +1,24 @@
-from transformers import (
-    AutoTokenizer,
-    AutoModelForMaskedLM,
-)
 from pathlib import Path
-import pandas as pd
-import torch
-import numpy as np
 from dotenv import load_dotenv
 import os, sys
-from embed._embedder import Embedder
 
-load_dotenv()
+dir = Path(__file__).resolve().parent
+load_dotenv(Path.cwd() / ".env")
 python_path = os.getenv('PYTHONPATH')
 if python_path:
     sys.path.append(python_path)
 
-dir = Path(__file__).resolve().parent
+from transformers import (
+    AutoTokenizer,
+    AutoModelForMaskedLM,
+)
 
-class LLMEmbedder(Embedder):
+import pandas as pd
+import torch
+import numpy as np
+from embed._embedder import Embedder
+
+class LLMEncoder(Embedder):
     def __init__(self, tokenizer, model):
         self._tokenizer = tokenizer
         self._model = model
@@ -36,8 +37,8 @@ class LLMEmbedder(Embedder):
     def _get_df(self, fname: str):
         pass
 
-def tcrbert():
+def tcrbert() -> LLMEncoder:
     tokenizer = AutoTokenizer.from_pretrained(dir / "tcrbert-tokenizer")
     bertmodel = AutoModelForMaskedLM.from_pretrained(dir / "tcrbert-model").bert
     bertmodel = bertmodel.to("cuda") if torch.cuda.is_available() else bertmodel
-    return LLMEmbedder(tokenizer, bertmodel)
+    return LLMEncoder(tokenizer, bertmodel)

@@ -1,22 +1,19 @@
-import torch
-import pandas as pd
-from embed.physicochemical import kidera, atchley, rand, aaprop
-from embed.llm import tcrbert
-from sceptr import variant
 from pathlib import Path
 from dotenv import load_dotenv
-from reduction.autoencoder import Encoder, Autoencoder as AE
-import random
-import numpy as np
-import warnings
 import os, sys
 
-load_dotenv()
+dir = Path(__file__).resolve().parent
+load_dotenv(Path.cwd() / ".env")
 python_path = os.getenv('PYTHONPATH')
 if python_path:
     sys.path.append(python_path)
 
-dir = Path(__file__).resolve().parent
+import torch
+import pandas as pd
+import random
+import numpy as np
+import warnings
+
 
 class JohnsonLindenstarauss():
     def __init__(self, in_dim: int, fname: str = None, out_dim: int = 5):
@@ -34,10 +31,10 @@ class JohnsonLindenstarauss():
     def create_transformation(self):
         transformation = np.random.normal(0, 1, size = (self._in_dim, self._out_dim))
         transformationdf = pd.DataFrame(transformation)
-        transformationdf.to_parquet(dir / self._fname)
+        transformationdf.to_parquet(dir / "jl-transformations" / self._fname)
 
     def load_transformation(self):
-        self.transformation = pd.read_parquet(dir / self._fname).to_numpy()
+        self.transformation = pd.read_parquet(dir / "jl-transformations" / self._fname).to_numpy()
         self.transformation_tensor = self._to_tensor(self.transformation)
 
     def _to_tensor(self, ndarray):
@@ -53,6 +50,33 @@ class JohnsonLindenstarauss():
         
         return obj @ transformation
 
+class _Encoder(torch.nn.Module):
+    def __init__(self, in_dim, out_dim):
+        super(_Encoder, self).__init__()
+        self._encoder = torch.nn.Linear(in_dim, out_dim)
+    
+    def forward(self, x):
+        return self._encoder(x)
+    
+class _Decoder(torch.nn.Module):
+    def __init__(self, in_dim, out_dim):
+        super(_Decoder, self).__init__()
+        self._decoder = torch.nn.Linear(out_dim, in_dim)
+    
+    def forward(self, x):
+        return self._decoder(x)
+
+class _Autoencoder(torch.nn.Module):
+    def __init__(self, in_dim, latent_dim):
+        super(_Autoencoder, self).__init__()
+        self.encoder = _Encoder(in_dim, latent_dim)
+        self.decoder = _Decoder(in_dim, latent_dim)
+    
+    def forward(self, x):
+        encoded = self.encoder(x)
+        decoded = self.decoder(encoded)
+        return decoded
+
 class AutoEncoder:
     def __init__(self, encoding_method, method_name: str, out_dim = 5, batchsize: int = 1024):
         self._encoder_fname = f'{method_name}_encoder.pth'
@@ -65,7 +89,7 @@ class AutoEncoder:
         try:
             self.load_transformation()
         except FileNotFoundError:
-            self._encoder = None
+            self.encoder = None
             warnings.warn("No AutoEncoder Transformer found for this encoding method.")
 
     @staticmethod
@@ -80,18 +104,23 @@ class AutoEncoder:
                 pd.read_csv(dataset_paths[0], sep = "\t", dtype = str).head()
             ).shape[1]
 
-            autoencoder = AE(in_dim, 5)
+            autoencoder = _Autoencoder(in_dim, 5)
             autoencoder = autoencoder.cuda() if torch.cuda.is_available() else autoencoder
             criterion = torch.nn.MSELoss()
-            optim = torch.optim.Adam(autoencoder.parameters(), lr = 1e-4)
+            optim = torch.optim.Adam(autoencoder.parameters(), lr = 1e-3)
 
             for epoch in range(10):
                 for fno, file in enumerate(dataset_paths):
                     df = pd.read_csv(file, sep = "\t", dtype = str)
                     df = df.sample(frac=1).reset_index(drop=True)
                     num_batches = int(np.ceil(len(df) / self._batchsize))
-                    for batchno, x in enumerate(AutoEncoder.batches(df, self._batchsize)):
-                        x = self._encoding_method.calc_vector_representations(x, batchsize = self._batchsize)
+                    for batchno, x in enumerate(AutoEncoder._batches(df, self._batchsize)):
+
+                        try:
+                            x = self._encoding_method.calc_vector_representations(x, batchsize = self._batchsize)
+                        except TypeError:
+                            x = self._encoding_method.calc_vector_representations(x)
+
                         x = torch.from_numpy(x).to(torch.float32)
                         x = x.cuda() if torch.cuda.is_available() else x
                         y = autoencoder(x)
@@ -105,26 +134,26 @@ class AutoEncoder:
             pass
 
         finally:
-            torch.save(autoencoder.encoder.state_dict(), dir / self._encoder_fname)
-            torch.save(autoencoder.decoder.state_dict(), dir / self._decoder_fname)
+            torch.save(autoencoder.encoder.state_dict(), dir / "ae-transformations" / self._encoder_fname)
+            torch.save(autoencoder.decoder.state_dict(), dir / "ae-transformations" / self._decoder_fname)
             self.encoder = autoencoder.encoder
 
     def load_transformation(self):
         in_dim = self._encoding_method.calc_vector_representations(pd.read_csv(dir / "sample.tsv", sep = "\t", dtype = str)).shape[1]
-        encoder = Encoder(in_dim, 5)
-        encoder.load_state_dict(torch.load(dir / self._encoder_fname))
+        encoder = _Encoder(in_dim, 5)
+        encoder.load_state_dict(torch.load(dir / "ae-transformations" / self._encoder_fname))
         encoder.eval()
         self.encoder = encoder.cuda() if torch.cuda.is_available() else encoder
 
-    def reduce(self):
-        if self._encoder is None:
+    def reduce(self, obj):
+        if self.encoder is None:
             raise NameError("You must train the AutoEncoder before using this function.")
 
         if type(obj) != torch.Tensor:
             obj = torch.from_numpy(obj).to(torch.float32)
     
         reduced = []
-        for batch in AutoEncoder.batches(obj, self._batchsize):
-            reduced += self._encoder(batch).tolist()
+        for batch in AutoEncoder._batches(obj, self._batchsize):
+            reduced += self.encoder(batch).tolist()
         
         return np.array(reduced)

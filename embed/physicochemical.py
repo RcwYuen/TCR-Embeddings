@@ -1,15 +1,17 @@
-import pandas as pd
-import numpy as np
 from pathlib import Path
-from embed._embedder import Embedder
 from dotenv import load_dotenv
 import os, sys
 
-load_dotenv()
+dir = Path(__file__).resolve().parent
+load_dotenv(Path.cwd() / ".env")
 python_path = os.getenv('PYTHONPATH')
 if python_path:
     sys.path.append(python_path)
 
+
+import pandas as pd
+import numpy as np
+from embed._embedder import Embedder
 
 class PhysicoChemicalEncoder(Embedder):
     def __init__(self, fname):
@@ -34,14 +36,14 @@ class PhysicoChemicalEncoder(Embedder):
         rep = rep[~np.isnan(rep).any(axis = 1)]
         return rep
     
-def aaprop():
+def aaprop() -> PhysicoChemicalEncoder:
     return PhysicoChemicalEncoder("aa_properties.txt")
 
-def atchley():
+def atchley() -> PhysicoChemicalEncoder:
     return PhysicoChemicalEncoder("atchley.txt")
 
-def rand():
+def rand() -> PhysicoChemicalEncoder:
     return PhysicoChemicalEncoder("random.txt")
 
-def kidera():
+def kidera() -> PhysicoChemicalEncoder:
     return PhysicoChemicalEncoder("kidera.txt")
