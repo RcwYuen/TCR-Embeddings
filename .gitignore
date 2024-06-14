@@ -6,7 +6,7 @@ data
 **__pycache__**
 
 */tessa/TESSA
-*/tcrbert-model
-*/tcrbert-tokenizer
+*/tcrbert-model/
+*/tcrbert-tokenizer/
 
 *.tsv

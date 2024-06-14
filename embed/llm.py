@@ -23,7 +23,7 @@ class LLMEmbedder(Embedder):
         self._model = model
     
     def calc_vector_representations(self, df, batchsize = 2 ** 10):
-        tcr = [i for i in df["CDR3A"].tolist() + df["CDR3B"].tolist() if not pd.isna(i)]
+        tcr = [" ".join(list(i)) for i in df["CDR3A"].tolist() + df["CDR3B"].tolist() if not pd.isna(i)]
         loader = torch.utils.data.DataLoader(tcr, batch_size = batchsize, shuffle = False)
         embeddings = []
         for i in loader:
