@@ -16,5 +16,6 @@ for encoding in encodings:
         config["encoding"] = encoding
         config["kfold"] = fold
         config["output-path"] = f"results/{encoding}/kfold-{fold}"
+        config["reduction"] = ""
         with open(dir / fname, "w") as f:
             f.write(json.dumps(config, indent = 4))
