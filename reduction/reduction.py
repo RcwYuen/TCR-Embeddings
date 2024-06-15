@@ -54,7 +54,8 @@ class JohnsonLindenstarauss():
         elif type(obj) == np.ndarray:
             transformation = self.transformation.copy()
         
-        return obj @ transformation
+        transformed = obj @ transformation
+        return transformed
 
 class _Encoder(torch.nn.Module):
     def __init__(self, in_dim, out_dim):
