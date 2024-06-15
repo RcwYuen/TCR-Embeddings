@@ -1,0 +1,5 @@
+TCRBERT | Epoch  9 / 10 - File 139 / 140 - Batch    13 /    14 | Loss 0.04488891363143921
+SCEPTR-TINY | Epoch  9 / 10 - File 139 / 140 - Batch    22 /    23 | Loss 0.017906684428453445
+SCEPTR-DEFAULT | Epoch  9 / 10 - File 139 / 140 - Batch    35 /    36 | Loss 0.012163993902504444
+AAPROP | Epoch  9 / 10 - File 139 / 140 - Batch     9 /    10 | Loss 0.00041497425991110504
+ATCHLEY | Epoch  9 / 10 - File 139 / 140 - Batch     0 /     1 | Loss 9.891391528071836e-08

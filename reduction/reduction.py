@@ -105,7 +105,7 @@ class AutoEncoder:
             ).shape[1]
 
             autoencoder = _Autoencoder(in_dim, 5)
-            autoencoder = autoencoder.cuda() if torch.cuda.is_available() else autoencoder
+            autoencoder = autoencoder.cuda() if torch.cuda.is_available() else autoencoder.cpu()
             criterion = torch.nn.MSELoss()
             optim = torch.optim.Adam(autoencoder.parameters(), lr = 1e-3)
 
@@ -141,7 +141,12 @@ class AutoEncoder:
     def load_transformation(self):
         in_dim = self._encoding_method.calc_vector_representations(pd.read_csv(dir / "sample.tsv", sep = "\t", dtype = str)).shape[1]
         encoder = _Encoder(in_dim, 5)
-        encoder.load_state_dict(torch.load(dir / "ae-transformations" / self._encoder_fname))
+        
+        if torch.cuda.is_available():
+            encoder.load_state_dict(torch.load(dir / "ae-transformations" / self._encoder_fname))
+        else:
+            encoder.load_state_dict(torch.load(dir / "ae-transformations" / self._encoder_fname, map_location=torch.device('cpu')))
+
         encoder.eval()
         self.encoder = encoder.cuda() if torch.cuda.is_available() else encoder
 
