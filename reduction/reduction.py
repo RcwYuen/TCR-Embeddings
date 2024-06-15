@@ -14,6 +14,12 @@ import random
 import numpy as np
 import warnings
 
+class NoReduce():
+    def __init__():
+        pass
+
+    def reduce(self, obj):
+        return obj
 
 class JohnsonLindenstarauss():
     def __init__(self, in_dim: int, fname: str = None, out_dim: int = 5):
@@ -115,7 +121,6 @@ class AutoEncoder:
                     df = df.sample(frac=1).reset_index(drop=True)
                     num_batches = int(np.ceil(len(df) / self._batchsize))
                     for batchno, x in enumerate(AutoEncoder._batches(df, self._batchsize)):
-
                         try:
                             x = self._encoding_method.calc_vector_representations(x, batchsize = self._batchsize)
                         except TypeError:
@@ -139,9 +144,9 @@ class AutoEncoder:
             self.encoder = autoencoder.encoder
 
     def load_transformation(self):
-        in_dim = self._encoding_method.calc_vector_representations(pd.read_csv(dir / "sample.tsv", sep = "\t", dtype = str)).shape[1]
+        in_dim = self._encoding_method.calc_vector_representations(pd.read_csv(Path.cwd() / "data/sample.tsv", sep = "\t", dtype = str)).shape[1]
         encoder = _Encoder(in_dim, 5)
-        
+
         if torch.cuda.is_available():
             encoder.load_state_dict(torch.load(dir / "ae-transformations" / self._encoder_fname))
         else:

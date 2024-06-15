@@ -2,7 +2,7 @@ venv-laptop
 venv
 .env
 
-data
+data/
 *prototyping*
 **__pycache__**
 
