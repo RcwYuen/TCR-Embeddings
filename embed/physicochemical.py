@@ -8,7 +8,6 @@ python_path = os.getenv('PYTHONPATH')
 if python_path:
     sys.path.append(python_path)
 
-
 import pandas as pd
 import numpy as np
 from embed._embedder import Embedder

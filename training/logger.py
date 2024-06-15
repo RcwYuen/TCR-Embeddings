@@ -17,3 +17,6 @@ class Logger:
     def flush(self):
         for stream in self.streams:
             stream.flush()
+
+    def close(self):
+        self.streams[-1].close()

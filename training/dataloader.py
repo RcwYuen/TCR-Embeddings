@@ -20,7 +20,7 @@ class Patients(torch.utils.data.Dataset):
         self.__kfold = kfold
 
         self.__training_data = []
-        self.__ratio = (0, 0) # Ratio for `negatives: positives` in training data
+        self.__ratio = [0, 0] # Ratio for `negatives: positives` in training data
         self.__validation_data = []
         self.__testing_data = []
 
@@ -31,6 +31,13 @@ class Patients(torch.utils.data.Dataset):
     
     def total_files(self):
         return len(self.__training_data) + len(self.__validation_data) + len(self.__testing_data)
+
+    def files_by_category(self):
+        return {
+            "Training": len(self.__training_data), 
+            "Validation": len(self.__validation_data), 
+            "Testing": len(self.__testing_data)
+        }
 
     def __len__(self):
         if self.__mode == 1: # Training
@@ -52,13 +59,13 @@ class Patients(torch.utils.data.Dataset):
 
     def __load_kfold(self, dirs, label):
         for dir in dirs:
-            tsvs = set(dir.glob("*.tsv"))
+            tsvs = set((Path.cwd() / dir).glob("*.tsv"))
             kfold = [
-                i.replace("\n", "").split("<>") for i in open(dir / "kfold.txt", "r").readlines()
+                i.replace("\n", "").split("<>") for i in open(Path.cwd() / dir / "kfold.txt", "r").readlines()
             ][self.__kfold]
+            tsvs = list(tsvs - set([Path.cwd() / i for i in kfold]))
 
-            tsvs = tsvs - set([Path.cwd() / i for i in kfold])
-            trainidx = np.random.choice(np.arange(len(tsvs)), replace = False, size = int(len(self) * self.__split)).astype(int)
+            trainidx = np.random.choice(np.arange(len(tsvs)), replace = False, size = int(len(tsvs) * self.__split)).astype(int)
             validationidx = np.setdiff1d(np.arange(len(tsvs)), trainidx).astype(int)
 
             self.__training_data += [(label, tsvs[i]) for i in trainidx]

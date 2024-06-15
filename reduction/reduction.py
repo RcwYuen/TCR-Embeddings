@@ -15,7 +15,7 @@ import numpy as np
 import warnings
 
 class NoReduce():
-    def __init__():
+    def __init__(self):
         pass
 
     def reduce(self, obj):
@@ -111,7 +111,7 @@ class AutoEncoder:
             ).shape[1]
 
             autoencoder = _Autoencoder(in_dim, 5)
-            autoencoder = autoencoder.cuda() if torch.cuda.is_available() else autoencoder.cpu()
+            autoencoder = autoencoder.cuda() if torch.cuda.is_available() else autoencoder
             criterion = torch.nn.MSELoss()
             optim = torch.optim.Adam(autoencoder.parameters(), lr = 1e-3)
 
@@ -161,6 +161,7 @@ class AutoEncoder:
 
         if type(obj) != torch.Tensor:
             obj = torch.from_numpy(obj).to(torch.float32)
+            obj = obj.cuda() if torch.cuda.is_available() else obj
     
         reduced = []
         for batch in AutoEncoder._batches(obj, self._batchsize):

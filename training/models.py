@@ -27,5 +27,5 @@ def reduced_classifier() -> MIClassifier:
 
 def ordinary_classifier(encoding_method) -> MIClassifier:
     df = pd.read_csv(Path.cwd() / "data/sample.tsv", sep = "\t", dtype = str)
-    model = MIClassifier(encoding_method.calc_vector_representation(df).shape[1])
+    model = MIClassifier(encoding_method.calc_vector_representations(df).shape[1])
     return model.cuda() if torch.cuda.is_available() else model
