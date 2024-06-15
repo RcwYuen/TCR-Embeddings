@@ -41,4 +41,7 @@ def tcrbert() -> LLMEncoder:
     tokenizer = AutoTokenizer.from_pretrained(dir / "tcrbert-tokenizer")
     bertmodel = AutoModelForMaskedLM.from_pretrained(dir / "tcrbert-model").bert
     bertmodel = bertmodel.to("cuda") if torch.cuda.is_available() else bertmodel
+    bertmodel = torch.nn.ModuleList(
+        [bertmodel.embeddings] + [layer for layer in bertmodel.encoder.layer[:8]]
+    )
     return LLMEncoder(tokenizer, bertmodel)
