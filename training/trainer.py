@@ -61,7 +61,7 @@ def load_configs(custom_configs):
         if key in configs:
             configs[key] = val
         else:
-            printf(
+            print(
                 f"Unrecognised Configuration Found.  Please regenerate the configuration file with 'python {arg} --make'"
             )
             raise ValueError(f"Unrecongised Configuration Found: {key}")
@@ -348,7 +348,6 @@ if __name__ == "__main__":
 
     finally:
         try:
-            make_directory_where_necessary(Path.cwd() / custom_configs["output-path"])
-            torch.save(classifier.state_dict(), outpath / "classifier-trained.pth")
+            torch.save(classifier.state_dict(), Path.cwd() / custom_configs["output-path"] / "classifier-trained.pth")
         except NameError:
-            pass
+            print ("Cannot Save Final Classifier")
