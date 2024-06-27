@@ -19,7 +19,7 @@ class NoReduce():
         pass
 
     def reduce(self, obj):
-        return obj
+        return obj / (np.linalg.norm(obj, axis = 1)[:, None])
 
 class JohnsonLindenstarauss():
     def __init__(self, in_dim: int, fname: str = None, out_dim: int = 5):
@@ -92,6 +92,7 @@ class AutoEncoder:
         self._method_name = method_name
         self._batchsize = batchsize
         self.out_dim = out_dim
+        self._enforce_norm = "sceptr" in method_name
 
         try:
             self.load_transformation()
@@ -167,5 +168,6 @@ class AutoEncoder:
         reduced = []
         for batch in AutoEncoder._batches(obj, self._batchsize):
             reduced += self.encoder(batch).tolist()
+        reduced = np.array(reduced)
         
-        return np.array(reduced)
+        return reduced / (np.linalg.norm(reduced, axis = 1)[:, None])

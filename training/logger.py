@@ -2,9 +2,9 @@ from datetime import datetime
 import sys
 
 class Logger:
-    def __init__(self, filename):
+    def __init__(self, filename, opening_mode = "w"):
         self.filename = filename
-        self.outfile = open(filename, "w")
+        self.outfile = open(filename, opening_mode)
         self.initialized = True
         self.streams = [sys.stdout, self.outfile]
 
