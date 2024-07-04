@@ -51,11 +51,15 @@ class JohnsonLindenstarauss():
     def reduce(self, obj):
         if type(obj) == torch.Tensor:
             transformation = self.transformation_tensor.clone()
+            transformed = obj @ transformation
+            norms = torch.norm(transformed, dim = 1).unsqueeze(1)
+
         elif type(obj) == np.ndarray:
             transformation = self.transformation.copy()
-        
-        transformed = obj @ transformation
-        return transformed
+            transformed = obj @ transformation
+            norms = np.linalg.norm(transformed, axis = 1)[:, None]
+    
+        return transformed / norms
 
 class _Encoder(torch.nn.Module):
     def __init__(self, in_dim, out_dim):
@@ -155,6 +159,9 @@ class AutoEncoder:
             encoder.load_state_dict(torch.load(dir / "ae-transformations" / self._encoder_fname, map_location=torch.device('cpu')))
 
         encoder.eval()
+        for param in encoder.parameters():
+            param.requires_grad = False
+
         self.encoder = encoder.cuda() if torch.cuda.is_available() else encoder
 
     def reduce(self, obj):
