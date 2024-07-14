@@ -46,7 +46,8 @@ def defaults(write = False):
         "l2-penalty": 0,
         "encoding": "atchley",
         "reduction": "johnson-lindenstarauss",
-        "seed": 42
+        "seed": 42,
+        "use-cuda": True
     }
 
     if write:
@@ -114,7 +115,7 @@ def load_reduction(config):
     elif config["reduction"] == "johnson-lindenstarauss":
         from reduction.reduction import JohnsonLindenstarauss
         sample = pd.read_csv(Path.cwd() / "data/sample.tsv", sep = "\t", dtype = str)
-        in_dim = config["encoding-method"].calc_vector_representations(sample)
+        in_dim = config["encoding-method"].calc_vector_representations(sample).shape[1]
         reducer = JohnsonLindenstarauss(in_dim)
     
     else:
@@ -175,9 +176,9 @@ if __name__ == "__main__":
 
         # Loading Classifier
         if custom_configs["reduction"] is None:
-            classifier = ordinary_classifier(custom_configs["encoding-method"])
+            classifier = ordinary_classifier(custom_configs["encoding-method"], custom_configs["use-cuda"])
         else:
-            classifier = reduced_classifier()
+            classifier = reduced_classifier(custom_configs["use-cuda"])
 
         optim = torch.optim.Adam(
             classifier.parameters(),
@@ -229,12 +230,12 @@ if __name__ == "__main__":
                 
                 # Tensoring
                 embeddings = torch.from_numpy(embeddings).to(torch.float32)
-                embeddings = embeddings.cuda() if torch.cuda.is_available() else embeddings
+                embeddings = embeddings.cuda() if torch.cuda.is_available() and custom_configs["use-cuda"] else embeddings
                 
                 # Creating Prediction
                 prediction = classifier(embeddings)
                 label_t    = torch.full_like(prediction, label, dtype = torch.float32)
-                label_t    = label_t.cuda() if torch.cuda.is_available() else label_t
+                label_t    = label_t.cuda() if torch.cuda.is_available() and custom_configs["use-cuda"] else label_t
                 current_epoch_records["pred"].append(prediction.data.tolist()[0][0])
                 current_epoch_records["actual"].append(label)
                 current_epoch_records["seqs"].append(len(df))
@@ -278,10 +279,10 @@ if __name__ == "__main__":
                     embeddings = custom_configs["encoding-method"].calc_vector_representations(df)
                     embeddings = custom_configs["reducer"].reduce(embeddings)
                     embeddings = torch.from_numpy(embeddings).to(torch.float32)
-                    embeddings = embeddings.cuda() if torch.cuda.is_available() else embeddings
+                    embeddings = embeddings.cuda() if torch.cuda.is_available() and custom_configs["use-cuda"] else embeddings
                     prediction = classifier(embeddings)
                     label_t    = torch.full_like(prediction, label, dtype = torch.float32)
-                    label_t    = label_t.cuda() if torch.cuda.is_available() else label_t
+                    label_t    = label_t.cuda() if torch.cuda.is_available() and custom_configs["use-cuda"] else label_t
                     current_epoch_records["pred"].append(prediction.data.tolist()[0][0])
                     current_epoch_records["actual"].append(label)
                     current_epoch_records["seqs"].append(len(df))
@@ -311,10 +312,10 @@ if __name__ == "__main__":
                     embeddings = custom_configs["encoding-method"].calc_vector_representations(df)
                     embeddings = custom_configs["reducer"].reduce(embeddings)
                     embeddings = torch.from_numpy(embeddings).to(torch.float32)
-                    embeddings = embeddings.cuda() if torch.cuda.is_available() else embeddings
+                    embeddings = embeddings.cuda() if torch.cuda.is_available() and custom_configs["use-cuda"] else embeddings
                     prediction = classifier(embeddings)
                     label_t    = torch.full_like(prediction, label, dtype = torch.float32)
-                    label_t    = label_t.cuda() if torch.cuda.is_available() else label_t
+                    label_t    = label_t.cuda() if torch.cuda.is_available() and custom_configs["use-cuda"] else label_t
                     current_epoch_records["pred"].append(prediction.data.tolist()[0][0])
                     current_epoch_records["actual"].append(label)
                     current_epoch_records["seqs"].append(len(df))

@@ -21,11 +21,11 @@ class MIClassifier(torch.nn.Module):
         aggregated = torch.sum(self.last_weights * x, dim = 0, keepdim = True)
         return self.sig(self.classifying(aggregated))
     
-def reduced_classifier() -> MIClassifier:
+def reduced_classifier(use_cuda) -> MIClassifier:
     model = MIClassifier(5)
-    return model.cuda() if torch.cuda.is_available() else model
+    return model.cuda() if torch.cuda.is_available() and use_cuda else model
 
-def ordinary_classifier(encoding_method) -> MIClassifier:
+def ordinary_classifier(encoding_method, use_cuda) -> MIClassifier:
     df = pd.read_csv(Path.cwd() / "data/sample.tsv", sep = "\t", dtype = str)
     model = MIClassifier(encoding_method.calc_vector_representations(df).shape[1])
-    return model.cuda() if torch.cuda.is_available() else model
+    return model.cuda() if torch.cuda.is_available() and use_cuda else model
