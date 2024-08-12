@@ -3,7 +3,6 @@ venv
 .env
 
 data/*/
-results
 *prototyping*
 **__pycache__**
 

@@ -17,6 +17,7 @@ import torch
 import pandas as pd
 import numpy as np
 import time, datetime
+import shutil
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
@@ -336,6 +337,10 @@ if __name__ == "__main__":
             printf ("Epoch {} / {} - Average Validation Loss: {}".format(e, total_epochs, loss_record["val"][0]))
             printf ("Saving Model Checkpoint.")
             torch.save(classifier.state_dict(), outpath / "classifier.pth")
+            
+            for pos_no, loc in enumerate(custom_configs["positive-path"]):
+
+            for neg_no, loc in enumerate(custom_configs["negative-path"]):
     
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
