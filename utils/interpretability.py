@@ -1,19 +1,22 @@
-from sceptr import sceptr
-import pandas as pd
-from src.model import sceptr_unidirectional, load_trained
-from pathlib import Path
-import torch
-import re
-import warnings
-import matplotlib.pyplot as plt
-from tqdm.notebook import tqdm
+import argparse
 
-warnings.filterwarnings("ignore")
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-c", "--config",
+        help = "Location for Configuration File"
+    )
+    parser.add_argument(
+        "-m", "--make", action = "store_true",
+        help = "Create Default Configuration JSON"
+    )
+    parser.add_argument(
+        "-l", "--log-file", help = "File Logger Name"
+    )
+    return parser.parse_args()
 
-dir = Path.cwd() / "results" / "sceptr" / "trained-sceptr-caneval-4"
-#pattern = re.compile(r"eval-set-auc-(.*).csv")
-#bestepoch = int(pattern.match(str(list(dir.glob("eval-set-auc-*.csv"))[0].name)).group(1))
-bestepoch = 49
+def defaults()
 
-model = dir / f"Epoch {bestepoch}" / f"classifier-{bestepoch}.pth"
-model = load_trained(model, sceptr_unidirectional)
+if __name__ == "__main__":
+    parser = parse_args()
+    if parser.make:
