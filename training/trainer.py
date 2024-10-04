@@ -17,6 +17,7 @@ import torch
 import pandas as pd
 import numpy as np
 import time, datetime
+import shutil
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
@@ -336,7 +337,17 @@ if __name__ == "__main__":
             printf ("Epoch {} / {} - Average Validation Loss: {}".format(e, total_epochs, loss_record["val"][0]))
             printf ("Saving Model Checkpoint.")
             torch.save(classifier.state_dict(), outpath / "classifier.pth")
-    
+
+            for i, posdir in custom_configs["positive-path"]:
+                poskfold = open(Path.cwd() / posdir / "kfold.txt", "r").readlines()
+                with open(outpath / f"pos{i}-kfold.txt", "w") as outfile:
+                    outfile.writelines(poskfold[i])
+
+            for i, negdir in custom_configs["negative-path"]:
+                negkfold = open(Path.cwd() / negdir / "kfold.txt", "r").readlines()
+                with open(outpath / f"neg{i}-kfold.txt", "w") as outfile:
+                    outfile.writelines(negkfold[i])
+
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         printf(f"Error Encountered: Logging Information", "ERROR")
