@@ -1,0 +1,1 @@
+Used Epoch: 30 with AUC 0.9852941176470588

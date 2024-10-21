@@ -1,0 +1,1 @@
+Used Epoch: 59 with AUC 0.7156862745098039

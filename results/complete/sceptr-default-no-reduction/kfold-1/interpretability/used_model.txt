@@ -1,0 +1,1 @@
+Used Epoch: 9 with AUC 0.9754901960784313

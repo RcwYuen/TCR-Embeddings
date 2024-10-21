@@ -1,0 +1,1 @@
+Used Epoch: 34 with AUC 0.8137254901960784

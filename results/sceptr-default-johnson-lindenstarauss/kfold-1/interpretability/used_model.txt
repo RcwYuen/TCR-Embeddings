@@ -1,0 +1,1 @@
+Used Epoch: 94 with AUC 0.8725490196078431

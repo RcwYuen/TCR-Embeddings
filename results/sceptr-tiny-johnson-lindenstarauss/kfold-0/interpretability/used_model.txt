@@ -1,0 +1,1 @@
+Used Epoch: 20 with AUC 0.8970588235294117

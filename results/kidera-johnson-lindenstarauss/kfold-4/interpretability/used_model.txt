@@ -1,0 +1,1 @@
+Used Epoch: 7 with AUC 0.7552447552447552
