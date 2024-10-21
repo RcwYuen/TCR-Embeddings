@@ -1,0 +1,1 @@
+Used Epoch: 5 with AUC 0.892156862745098

@@ -1,0 +1,1 @@
+Used Epoch: 89 with AUC 0.6274509803921569

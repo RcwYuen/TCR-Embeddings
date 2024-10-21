@@ -1,0 +1,1 @@
+Used Epoch: 24 with AUC 1.0

@@ -1,0 +1,1 @@
+Used Epoch: 13 with AUC 0.8431372549019608
