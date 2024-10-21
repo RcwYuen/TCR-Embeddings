@@ -1,4 +1,6 @@
 import sys
+import os
+os.chdir("C:/Users/rcwyuen/OneDrive/Studies/UCL/Publications/TCR-Embeddings")
 sys.path.append("C:/Users/rcwyuen/OneDrive/Studies/UCL/Publications/TCR-Embeddings")
 
 from pathlib import Path
@@ -9,7 +11,9 @@ import reduction.reduction as reducer
 import torch
 import os
 from tqdm import tqdm
+import re
 
+use_cuda = False
 data_src = "results/"
 src = Path("C:/Users/rcwyuen/OneDrive/Studies/UCL/Publications/TCR-Embeddings")
 
@@ -68,23 +72,23 @@ def method_name_to_func(method_name):
 
 def find_method(pth):
     if "autoencoder" in pth.parent.name:
-        encoding_method_str = pth.parent.name.replace(f"-autoencoder", "")
+        encoding_method_str = re.sub(r"-autoencoder(-\d*)?", "", pth.parent.name)
         encoding_method = method_name_to_func(encoding_method_str)
         reduction_method = reducer.AutoEncoder(
             encoding_method, encoding_method_str
         )
 
     elif "johnson-lindenstarauss" in pth.parent.name:
-        encoding_method_str = pth.parent.name.replace(f"-johnson-lindenstarauss", "")
+        encoding_method_str = re.sub(r"-johnson-lindenstarauss(-\d*)?", "", pth.parent.name)
         encoding_method = method_name_to_func(encoding_method_str)
         reduction_method = reducer.JohnsonLindenstarauss(
             encoding_method.calc_vector_representations(
-                pd.read_csv(Path.cwd() / "data/sample.tsv", sep = "\t", dtype = str)
+                pd.read_csv(src / "data/sample.tsv", sep = "\t", dtype = str)
             ).shape[1]
         )
 
     elif "no-reduction" in pth.parent.name:
-        encoding_method_str = pth.parent.name.replace(f"-no-reduction", "")
+        encoding_method_str = re.sub(r"-no-reduction(-\d*)?", "", pth.parent.name)
         encoding_method = method_name_to_func(encoding_method_str)
         reduction_method = reducer.NoReduce()
 
@@ -93,11 +97,11 @@ def find_method(pth):
     
     return (encoding_method, reduction_method)
 
-def load_trained_model(model_encoding, model_reducer):
+def load_trained_model(model_encoding, model_reducer, best_epoch):
     if isinstance(model_reducer, reducer.NoReduce):
-        model_trained = model.ordinary_classifier(model_encoding, True)
+        model_trained = model.ordinary_classifier(model_encoding, use_cuda)
     else:
-        model_trained = model.reduced_classifier(True)
+        model_trained = model.reduced_classifier(use_cuda)
     
     model_trained.load_state_dict(
         torch.load(method_kf / f"Epoch {best_epoch}/classifier.pth")
@@ -108,7 +112,7 @@ def load_trained_model(model_encoding, model_reducer):
     
     return model_trained
 
-def get_result(pth_positive_file):
+def get_result(pth_positive_file, model_encoding, model_reducer, model_trained):
     df = pd.read_csv(src / pth_positive_file, sep="\t", dtype=str)
 
     # Embedding File
@@ -119,7 +123,7 @@ def get_result(pth_positive_file):
     
     # Tensoring
     tensor_embeddings = torch.from_numpy(tensor_embeddings).to(torch.float32)
-    tensor_embeddings = tensor_embeddings.cuda() if torch.cuda.is_available() else tensor_embeddings
+    tensor_embeddings = tensor_embeddings.cuda() if torch.cuda.is_available() and use_cuda else tensor_embeddings
     
     # Creating Prediction
     predicted_label = model_trained(tensor_embeddings)
@@ -138,7 +142,7 @@ def make_interpretability_dir():
     except:
         pass
 
-ls_method_kf_dirs = list((Path.cwd() / data_src).glob("**/kfold-*"))
+ls_method_kf_dirs = list((src / data_src).glob("**/kfold-*"))
 
 for idx, method_kf in enumerate(ls_method_kf_dirs):
     ls_positive = read_kfold_set(method_kf / "pos0-kfold.txt", 1)
@@ -146,12 +150,16 @@ for idx, method_kf in enumerate(ls_method_kf_dirs):
     ls_kfs = ls_positive + ls_negative
     best_epoch, best_epoch_auc = find_best_epoch(method_kf)
     model_encoding, model_reducer = find_method(method_kf)
-    model_trained = load_trained_model(model_encoding, model_reducer)    
+    model_trained = load_trained_model(model_encoding, model_reducer, best_epoch)
     make_interpretability_dir()
+    
+    if (method_kf / "interpretability/results_log.csv").exists() and (method_kf / "interpretability/used_model.txt").exists():
+        continue
 
     df_repertoire_with_label = pd.DataFrame({"filenames": [], "true": [], "prediction": []})
-    for pth_file, label in tqdm(ls_kfs, desc=f"{method_kf.name}; Progress: {idx+1}/{len(ls_method_kf_dirs)}"):
-        df, pred = get_result(pth_file)
+    for pth_file, label in tqdm(ls_kfs, 
+                                desc = str(method_kf.relative_to(Path.cwd() / "results"))+f"; Progress: {idx+1}/{len(ls_method_kf_dirs)}"):
+        df, pred = get_result(pth_file, model_encoding, model_reducer, model_trained)
         df_repertoire_with_label = pd.concat([
             df_repertoire_with_label,
             pd.DataFrame({"filenames": [pth_file], "true": [label], "prediction": [pred.item()]})
