@@ -7,57 +7,55 @@ import torch
 
 
 class Patients(torch.utils.data.Dataset):
-    def __init__(self, split: float = 0.8, positives: list =[], negatives: list =[], kfold: int =0):
+    def __init__(
+        self,
+        split: float = 0.8,
+        positives: list = [],
+        negatives: list = [],
+        kfold: int = 0,
+    ) -> None:
         super(Patients, self).__init__()
-        self.__mode = 1  # 1 for training, 0 for validation, -1 for test
-        self.__positives = positives
-        self.__negatives = negatives
-        self.__split = split
-        self.__kfold = kfold
+        # 1 for training, 0 for validation, -1 for test
+        self.__mode: int = 1
+        self.__positives: list = positives
+        self.__negatives: list = negatives
+        self.__split: float = split
+        self.__kfold: int = kfold
 
-        self.__training_data = []
-        self.__ratio = [0, 0]  # Ratio for `negatives: positives` in training data
-        self.__validation_data = []
-        self.__testing_data = []
+        self.__training_data: list = []
+        # Ratio for `negatives: positives` in training data
+        self.__ratio: list = [0, 0]
+        self.__validation_data: list = []
+        self.__testing_data: list = []
 
         self.__load_kfold(self.__positives, 1)
         self.__load_kfold(self.__negatives, 0)
 
         np.random.shuffle(self.__training_data)
+        self.__data: list = [
+            self.__validation_data,
+            self.__training_data,
+            self.__testing_data,
+        ]
 
-    def total_files(self):
-        return (
-            len(self.__training_data)
-            + len(self.__validation_data)
-            + len(self.__testing_data)
-        )
+    def total_files(self) -> int:
+        return sum(len(i) for i in self.__data)
 
-    def files_by_category(self):
+    def files_by_category(self) -> dict:
         return {
             "Training": len(self.__training_data),
             "Validation": len(self.__validation_data),
             "Testing": len(self.__testing_data),
         }
 
-    def __len__(self):
-        if self.__mode == 1:  # Training
-            return len(self.__training_data)
-        elif self.__mode == 0:  # Validation
-            return len(self.__validation_data)
-        elif self.__mode == -1:  # Test
-            return len(self.__testing_data)
+    def __len__(self) -> int:
+        return len(self.__data[self.__mode])
 
-    def __getitem__(self, idx):
-        if self.__mode == 1:  # Training
-            file = self.__training_data[idx]
-        elif self.__mode == 0:  # Validation
-            file = self.__validation_data[idx]
-        elif self.__mode == -1:  # Test
-            file = self.__testing_data[idx]
+    def __getitem__(self, idx) -> int:
+        label, fname = self.__data[self.__mode][idx]
+        return [label, pd.read_csv(fname, sep="\t", dtype=str)]
 
-        return [file[0], pd.read_csv(file[1], sep="\t", dtype=str)]
-
-    def __load_kfold(self, dirs, label):
+    def __load_kfold(self, dirs: list, label: int) -> None:
         for dir in dirs:
             tsvs = set((Path.cwd() / dir).glob("*.tsv"))
             kfold = [
@@ -76,14 +74,14 @@ class Patients(torch.utils.data.Dataset):
             self.__ratio[label] += len(trainidx)
             self.__testing_data += [(label, Path.cwd() / file) for file in kfold]
 
-    def ratio(self, label):
+    def ratio(self, label: int) -> float:
         return self.__ratio[label] / sum(self.__ratio)
 
-    def train(self):
+    def train(self) -> None:
         self.__mode = 1
 
-    def test(self):
+    def test(self) -> None:
         self.__mode = -1
 
-    def validation(self):
+    def validation(self) -> None:
         self.__mode = 0
