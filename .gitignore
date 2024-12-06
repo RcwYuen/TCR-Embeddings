@@ -1,6 +1,5 @@
-venv-laptop
-venv
 .env
+.idea
 
 data/*/
 *prototyping*

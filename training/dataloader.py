@@ -7,7 +7,7 @@ import torch
 
 
 class Patients(torch.utils.data.Dataset):
-    def __init__(self, split=0.8, positives=[], negatives=[], kfold=0):
+    def __init__(self, split: float = 0.8, positives: list =[], negatives: list =[], kfold: int =0):
         super(Patients, self).__init__()
         self.__mode = 1  # 1 for training, 0 for validation, -1 for test
         self.__positives = positives
