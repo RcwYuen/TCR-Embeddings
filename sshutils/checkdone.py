@@ -1,10 +1,11 @@
-from pathlib import Path
 import re
 import time
+from pathlib import Path
+
 
 def get_epoch(base_path):
     max_epoch = -1
-    pattern = re.compile(r'^Epoch (\d+)$')
+    pattern = re.compile(r"^Epoch (\d+)$")
 
     for folder in base_path.iterdir():
         if folder.is_dir():
@@ -13,6 +14,7 @@ def get_epoch(base_path):
                 epoch_number = int(match.group(1))
                 max_epoch = max(max_epoch, epoch_number)
     return max_epoch
+
 
 def stale_flag(cur_epoch, p):
     curr_epoch = (p / f"Epoch {cur_epoch}").stat().st_mtime
@@ -32,7 +34,9 @@ for p in dir.glob("*/kfold-*"):
     else:
         status = "Testing"
 
-    outstrs.append(f"{str(p.relative_to(dir)):40}  |  Current Epoch {curepoch:3}  |  Done: {done:5}  |  Status: {status:8}  |  Stale: {stale} mins")
-   
+    outstrs.append(
+        f"{str(p.relative_to(dir)):40}  |  Current Epoch {curepoch:3}  |  Done: {done:5}  |  Status: {status:8}  |  Stale: {stale} mins"
+    )
+
 outstrs = "\n".join(sorted(outstrs))
-print (outstrs)
+print(outstrs)

@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
-import pandas as pd
+
 import numpy as np
+import pandas as pd
+
 
 class Embedder(ABC):
     @abstractmethod
@@ -9,13 +11,10 @@ class Embedder(ABC):
 
     @abstractmethod
     def calc_vector_representations(
-        self,
-        df: pd.DataFrame,
-        batchsize: int = 2 ** 10) -> np.ndarray:
+        self, df: pd.DataFrame, batchsize: int = 2**10
+    ) -> np.ndarray:
         pass
 
     @abstractmethod
-    def _get_df(
-        self,
-        fname: str) -> pd.DataFrame:
+    def _get_df(self, fname: str) -> pd.DataFrame:
         pass

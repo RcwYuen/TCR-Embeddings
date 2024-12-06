@@ -1,7 +1,8 @@
 from collections import Counter
-from tqdm.notebook import tqdm
 from pathlib import Path
+
 import pandas as pd
+from tqdm.notebook import tqdm
 
 dct_filename_to_lens = {}
 data_src = "results/"
@@ -20,7 +21,10 @@ for method_kf in tqdm(list((Path.cwd() / data_src).glob("**/kfold-*"))):
         set_test_record_lens.add(tuple(pd.read_csv(epoch)["seqs"]))
     assert len(set_test_record_lens) == 1
 
-    ls_test_files = [str(dct_filename_to_lens[i].relative_to(Path.cwd())) for i in list(set_test_record_lens)[0]]
+    ls_test_files = [
+        str(dct_filename_to_lens[i].relative_to(Path.cwd()))
+        for i in list(set_test_record_lens)[0]
+    ]
     positives = "<>".join([i for i in ls_test_files if "LTX" in i])
     negatives = "<>".join([i for i in ls_test_files if "LTX" not in i])
 

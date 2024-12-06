@@ -1,8 +1,9 @@
-from datetime import datetime
 import sys
+from datetime import datetime
+
 
 class Logger:
-    def __init__(self, filename, opening_mode = "w"):
+    def __init__(self, filename, opening_mode="w"):
         self.filename = filename
         self.outfile = open(filename, opening_mode)
         self.initialized = True

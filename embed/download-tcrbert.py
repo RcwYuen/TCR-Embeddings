@@ -1,22 +1,24 @@
+import os
+import sys
 from pathlib import Path
+
 from dotenv import load_dotenv
-import os, sys
 
 dir = Path(__file__).resolve().parent
 load_dotenv(Path.cwd() / ".env")
-python_path = os.getenv('PYTHONPATH')
+python_path = os.getenv("PYTHONPATH")
 if python_path:
     sys.path.append(python_path)
 
-from transformers import (
-    AutoTokenizer,
-    AutoModelForMaskedLM,
-)
 import os
+
+from transformers import AutoModelForMaskedLM, AutoTokenizer
 
 dir = Path(__file__).resolve().parent
 
-files = list((dir / "tcrbert-model").glob("*")) + list((dir / "tcrbert-tokenizer").glob("*"))
+files = list((dir / "tcrbert-model").glob("*")) + list(
+    (dir / "tcrbert-tokenizer").glob("*")
+)
 
 for file in files:
     os.remove(file)
