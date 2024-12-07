@@ -3,17 +3,16 @@ import sys
 import warnings
 from pathlib import Path
 
+from reduction import AutoEncoder
+from sceptr import variant
+
 from tcr_embeddings import runtime_constants
+from tcr_embeddings.embed.llm import tcrbert
+from tcr_embeddings.embed.physicochemical import aaprop, atchley, kidera, rand
 
 os.chdir(runtime_constants.HOME_PATH)
 sys.path.append(str(runtime_constants.HOME_PATH))
 
-
-from reduction import AutoEncoder
-from sceptr import variant
-
-from tcr_embeddings.embed.llm import tcrbert
-from tcr_embeddings.embed.physicochemical import aaprop, atchley, kidera, rand
 
 if __name__ == "__main__":
     dataset_paths = list((Path.cwd() / "data/tcvhcw/cleaned").glob("*.tsv")) + list(
