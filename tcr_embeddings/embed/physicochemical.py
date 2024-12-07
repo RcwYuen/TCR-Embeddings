@@ -15,8 +15,8 @@ sys.path.append(str(runtime_constants.HOME_PATH))
 
 class PhysicoChemicalEncoder(Embedder):
     def __init__(self, fname):
-        dir = Path(__file__).resolve().parent
-        self.embedding_space = self._get_df(dir / fname)
+        loc = Path(__file__).resolve().parent
+        self.embedding_space = self._get_df(loc / fname)
         self.amino_acid_to_index = {
             aa: i for i, aa in enumerate(self.embedding_space.index)
         }
