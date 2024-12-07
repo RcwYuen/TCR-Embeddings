@@ -1,0 +1,38 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main  # Run on pushes to the main branch
+  pull_request:  # Run on pull requests
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        run: |
+          conda create --name tcr_embeddings python=3.12
+          conda activate tcr_embeddings
+          python -m pip install --upgrade pip
+          python -m pip install poetry
+          poetry install
+
+      - name: Check code formatting with black
+        run: black . --check
+
+      - name: Check import order with isort
+        run: isort . --check --diff
+
+      - name: Run flake8 linting
+        run: flake8 .
+
+      - name: Run mypy type checking
+        run: mypy .
+
+      - name: Run unit tests with pytest
+        run: python -m unittest discover -s tests -p "*.py"

@@ -1,8 +1,9 @@
 import os
 import sys
+from tcr_embeddings import runtime_constants
 
-os.chdir("/")
-sys.path.append("/")
+os.chdir(runtime_constants.HOME_PATH)
+sys.path.append(str(runtime_constants.HOME_PATH))
 
 import re
 

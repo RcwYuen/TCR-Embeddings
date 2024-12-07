@@ -1,19 +1,14 @@
 import os
 import sys
-from pathlib import Path
+from tcr_embeddings import runtime_constants
 
-from dotenv import load_dotenv
-
-dir = Path(__file__).resolve().parent
-load_dotenv(Path.cwd() / ".env")
-python_path = os.getenv("PYTHONPATH")
-if python_path:
-    sys.path.append(python_path)
+os.chdir(runtime_constants.HOME_PATH)
+sys.path.append(str(runtime_constants.HOME_PATH))
 
 import argparse
 
 import numpy as np
-
+from pathlib import Path
 from tcr_embeddings.training.dataloader import Patients
 from tcr_embeddings.training.logger import Logger
 from tcr_embeddings.training.models import ordinary_classifier, reduced_classifier

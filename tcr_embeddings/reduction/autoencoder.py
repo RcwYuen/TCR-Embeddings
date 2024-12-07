@@ -3,24 +3,21 @@ import sys
 import warnings
 from pathlib import Path
 
-from dotenv import load_dotenv
+from tcr_embeddings import runtime_constants
 
-directory = Path(__file__).resolve().parent
-load_dotenv(Path.cwd() / ".env")
-python_path = os.getenv("PYTHONPATH")
-if python_path:
-    sys.path.append(python_path)
+os.chdir(runtime_constants.HOME_PATH)
+sys.path.append(str(runtime_constants.HOME_PATH))
 
+
+from reduction import AutoEncoder
 from sceptr import variant
 
 from tcr_embeddings.embed.llm import tcrbert
 from tcr_embeddings.embed.physicochemical import aaprop, atchley, kidera, rand
-from reduction import AutoEncoder
 
 if __name__ == "__main__":
-    dataset_paths = (
-        list((Path.cwd() / "data/tcvhcw/cleaned").glob("*.tsv"))
-        + list((Path.cwd() / "data/Tx/cleaned").glob("*.tsv"))
+    dataset_paths = list((Path.cwd() / "data/tcvhcw/cleaned").glob("*.tsv")) + list(
+        (Path.cwd() / "data/Tx/cleaned").glob("*.tsv")
     )
 
     methods = [
