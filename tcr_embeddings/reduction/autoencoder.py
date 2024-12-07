@@ -5,7 +5,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-dir = Path(__file__).resolve().parent
+directory = Path(__file__).resolve().parent
 load_dotenv(Path.cwd() / ".env")
 python_path = os.getenv("PYTHONPATH")
 if python_path:
@@ -18,12 +18,9 @@ from tcr_embeddings.embed.physicochemical import aaprop, atchley, kidera, rand
 from reduction import AutoEncoder
 
 if __name__ == "__main__":
-    dataset_paths = sum(
-        [
-            list((Path.cwd() / "data/tcvhcw/cleaned").glob("*.tsv")),
-            list((Path.cwd() / "data/Tx/cleaned").glob("*.tsv")),
-        ],
-        [],
+    dataset_paths = (
+        list((Path.cwd() / "data/tcvhcw/cleaned").glob("*.tsv"))
+        + list((Path.cwd() / "data/Tx/cleaned").glob("*.tsv"))
     )
 
     methods = [
