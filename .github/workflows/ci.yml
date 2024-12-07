@@ -55,7 +55,7 @@ jobs:
         run: flake8 .
 
       - name: Check - Types [mypy]
-        run: mypy --ignore-misisng-imports --config-file pyproject.toml .
+        run: mypy --ignore-missing-imports --config-file pyproject.toml .
 
       - name: Check - Unit Tests [unittest]
         run: python -m unittest discover -s test -p "*test*.py" -v

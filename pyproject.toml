@@ -54,6 +54,8 @@ intel-openmp = "2025.0.3"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.13.0"
+transformers = "^4.47.0"
+pyarrow = "^18.1.0"
 
 [build-system]
 requires = ["poetry-core"]
