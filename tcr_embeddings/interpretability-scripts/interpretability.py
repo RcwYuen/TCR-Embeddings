@@ -1,23 +1,23 @@
 import os
 import sys
 
-os.chdir("C:/Users/rcwyuen/OneDrive/Studies/UCL/Publications/TCR-Embeddings")
-sys.path.append("C:/Users/rcwyuen/OneDrive/Studies/UCL/Publications/TCR-Embeddings")
+os.chdir("/")
+sys.path.append("/")
 
 import re
 
 from sklearn.metrics import roc_auc_score
-from embed.physicochemical import *
-from embed.llm import tcrbert
+from tcr_embeddings.embed.physicochemical import *
+from tcr_embeddings.embed.llm import tcrbert
 from sceptr import variant
 from tqdm import tqdm
 
-import reduction.reduction as reducer
-import training.models as model
+from tcr_embeddings.reduction import reduction as reducer
+import tcr_embeddings.training.models as model
 
 use_cuda = False
 data_src = "results/"
-src = Path("C:/Users/rcwyuen/OneDrive/Studies/UCL/Publications/TCR-Embeddings")
+src = Path("/")
 
 
 def read_kfold_set(pth: Path, label: int) -> list[tuple[str, int]]:

@@ -14,7 +14,7 @@ import pandas as pd
 import torch
 import torch.nn.functional as F
 
-from embed._embedder import Embedder
+from tcr_embeddings.embed._embedder import Embedder
 
 
 class PhysicoChemicalEncoder(Embedder):

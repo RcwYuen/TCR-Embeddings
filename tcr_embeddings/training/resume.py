@@ -11,27 +11,29 @@ if python_path:
     sys.path.append(python_path)
 
 import argparse
+import ast
 import datetime
 import json
-import shutil
 import time
 
 import numpy as np
-import pandas as pd
-import torch
 
-from training.dataloader import Patients
-from training.logger import Logger
-from training.models import ordinary_classifier, reduced_classifier
+from tcr_embeddings.training.dataloader import Patients
+from tcr_embeddings.training.logger import Logger
+from tcr_embeddings.training.models import ordinary_classifier, reduced_classifier
+from tcr_embeddings.embed.physicochemical import *
+from tcr_embeddings.embed.llm import tcrbert
+from sceptr import variant
+from tcr_embeddings.reduction.reduction import AutoEncoder, JohnsonLindenstarauss, NoReduce
+
+
+def printf(msg, severity=""):
+    logger.write(msg, severity=severity)
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument("-c", "--config", help="Location for Configuration File")
-    parser.add_argument(
-        "-m", "--make", action="store_true", help="Create Default Configuration JSON"
-    )
-    parser.add_argument("-l", "--log-file", help="File Logger Name")
+    parser.add_argument("--dir", help="Directory for Training to be resumed.")
     return parser.parse_args()
 
 
@@ -49,7 +51,6 @@ def defaults(write=False):
         "encoding": "atchley",
         "reduction": "johnson-lindenstarauss",
         "seed": 42,
-        "use-cuda": True,
     }
 
     if write:
@@ -59,58 +60,70 @@ def defaults(write=False):
     return configs
 
 
-def load_configs(custom_configs):
-    configs = defaults(write=False)
-    for key, val in custom_configs.items():
-        if key in configs:
-            configs[key] = val
+def load_configs():
+    logfile = open(log_fname, "r")
+    finished_loading = False
+    configs = {}
+
+    while not finished_loading:
+        newline = logfile.readline().replace("\n", "")
+        if "Config" in newline:
+            cf, arg = newline.split(" Config ")[-1].split(": ")
+            if arg == "":
+                configs[cf] = arg
+            else:
+                try:
+                    configs[cf] = ast.literal_eval(arg)
+                except ValueError:
+                    configs[cf] = arg
+                except SyntaxError:
+                    pass
         else:
-            print(
-                f"Unrecognised Configuration Found.  Please regenerate the configuration file with 'python {arg} --make'"
-            )
-            raise ValueError(f"Unrecongised Configuration Found: {key}")
+            finished_loading = True
 
-    if configs["encoding"] == "atchley":
-        from embed.physicochemical import atchley
+    match configs["encoding"]:
+        case "atchley":
+            configs["encoding-method"] = atchley()
 
-        configs["encoding-method"] = atchley()
+        case "kidera":
+            configs["encoding-method"] = kidera()
 
-    elif configs["encoding"] == "kidera":
-        from embed.physicochemical import kidera
+        case "rand":
+            configs["encoding-method"] = rand()
 
-        configs["encoding-method"] = kidera()
+        case "aaprop":
+            configs["encoding-method"] = aaprop()
 
-    elif configs["encoding"] == "rand":
-        from embed.physicochemical import rand
+        case "tcrbert":
+            configs["encoding-method"] = tcrbert()
 
-        configs["encoding-method"] = rand()
+        case "sceptr-tiny":
+            configs["encoding-method"] = variant.tiny()
 
-    elif configs["encoding"] == "aaprop":
-        from embed.physicochemical import aaprop
+        case "sceptr-default":
+            configs["encoding-method"] = variant.default()
 
-        configs["encoding-method"] = aaprop()
-
-    elif configs["encoding"] == "tcrbert":
-        from embed.llm import tcrbert
-
-        configs["encoding-method"] = tcrbert()
-
-    elif configs["encoding"] == "sceptr-tiny":
-        from sceptr import variant
-
-        configs["encoding-method"] = variant.tiny()
-
-    elif configs["encoding"] == "sceptr-default":
-        from sceptr import variant
-
-        configs["encoding-method"] = variant.default()
+        case _:
+            raise ValueError
 
     return configs
 
 
-def write_configs(custom_configs):
-    for k, v in custom_configs.items():
-        printf(f"Config {k}: {v}", severity="INFO")
+def load_reduction(config):
+    match config["reduction"]:
+        case "autoencoder":
+            reducer = AutoEncoder(config["encoding-method"], config["encoding"])
+
+        case "johnson-lindenstarauss":
+            sample = pd.read_csv(Path.cwd() / "data/sample.tsv", sep="\t", dtype=str)
+            in_dim = config["encoding-method"].calc_vector_representations(sample)
+            reducer = JohnsonLindenstarauss(in_dim)
+
+        case _:
+            config["reduction"] = None
+            reducer = NoReduce()
+
+    return reducer
 
 
 def make_directory_where_necessary(directory):
@@ -120,26 +133,14 @@ def make_directory_where_necessary(directory):
     return directory
 
 
-def load_reduction(config):
-    if config["reduction"] == "autoencoder":
-        from reduction.reduction import AutoEncoder
-
-        reducer = AutoEncoder(config["encoding-method"], config["encoding"])
-
-    elif config["reduction"] == "johnson-lindenstarauss":
-        from reduction.reduction import JohnsonLindenstarauss
-
-        sample = pd.read_csv(Path.cwd() / "data/sample.tsv", sep="\t", dtype=str)
-        in_dim = config["encoding-method"].calc_vector_representations(sample).shape[1]
-        reducer = JohnsonLindenstarauss(in_dim)
-
-    else:
-        from reduction.reduction import NoReduce
-
-        config["reduction"] = None
-        reducer = NoReduce()
-
-    return reducer
+def load_last_epoch(custom_configs):
+    loc = Path.cwd() / custom_configs["output-path"]
+    maxepoch = max([int(i.name.replace("Epoch ", "")) for i in loc.glob("Epoch */")])
+    signature = set(
+        ["classifier.pth", "eval-records.csv", "test-records.csv", "train-records.csv"]
+    )
+    exists = set([i for i in (loc / f"Epoch {maxepoch}").glob("*") if i in signature])
+    return maxepoch - 1 if signature - exists else maxepoch
 
 
 def projected_time(current_file_no, total_file_no, current_epoch, total_epoch):
@@ -153,35 +154,16 @@ def projected_time(current_file_no, total_file_no, current_epoch, total_epoch):
     ), total_processed_files / (total_epoch * total_file_no)
 
 
-def printf(text, severity=""):
-    logger.write(text, severity=severity)
-
-
-global start_time, logger
+global logger, log_fname
 
 if __name__ == "__main__":
     try:
         parser = parse_args()
-        if parser.make:
-            print("Creating Configuration Template")
-            defaults(write=True)
-            quit()
-
-        config_file = parser.config if parser.config is not None else "config.json"
-
-        # Loading Configurations
-        custom_configs = defaults(write=False)
-        custom_configs = load_configs(json.load(open(config_file, "r")))
-
-        make_directory_where_necessary(Path.cwd() / custom_configs["output-path"])
-        logger = Logger(
-            Path.cwd() / custom_configs["output-path"] / parser.log_file
-            if parser.log_file is not None
-            else Path.cwd() / custom_configs["output-path"] / "training.log"
-        )
-
-        write_configs(custom_configs)
-
+        outpath = parser.dir
+        log_dir = list((Path.cwd() / outpath).glob("*.log"))
+        assert len(log_dir) == 1, "Ambiguous Log Files"
+        log_fname = log_dir[0]
+        logger = Logger(log_fname, opening_mode="a+")
         arg = " ".join(sys.argv)
         printf("Arguments: python " + " ".join(sys.argv), severity="INFO")
 
@@ -190,11 +172,12 @@ if __name__ == "__main__":
             for i in range(torch.cuda.device_count()):
                 printf(f"CUDA Device {i}: {torch.cuda.get_device_name(i)}")
 
-        # Loading Reducer
+        printf("Resuming Training - Loading Configurations")
+        custom_configs = load_configs()
         custom_configs["reducer"] = load_reduction(custom_configs)
-
-        # Seeding
+        custom_configs["output-path"] = outpath
         np.random.seed(custom_configs["seed"])
+        printf("Configurations Loaded.")
 
         # Loading Classifier
         if custom_configs["reduction"] is None:
@@ -203,6 +186,17 @@ if __name__ == "__main__":
             )
         else:
             classifier = reduced_classifier(custom_configs["use-cuda"])
+
+        last_epoch = load_last_epoch(custom_configs)
+        classifier.load_state_dict(
+            torch.load(
+                Path.cwd()
+                / custom_configs["output-path"]
+                / f"Epoch {last_epoch}"
+                / "classifier.pth",
+                map_location="cuda" if torch.cuda.is_available() else "cpu",
+            )
+        )
 
         optim = torch.optim.Adam(
             classifier.parameters(),
@@ -223,15 +217,13 @@ if __name__ == "__main__":
         for k, v in dataset.files_by_category().items():
             printf(f"{k} Data: {v} Entries", severity="INFO")
 
-        printf("Data loaded.  Commencing Training.")
-
         # Creating Training Records
         loss_record = {"train": [], "val": [], "test": []}
         total_epochs = custom_configs["epoch"]
 
         start_time = time.time()
         # Start of Training Loop
-        for e in range(total_epochs):
+        for e in range(last_epoch + 1, total_epochs, 1):
             current_epoch_records = {"pred": [], "actual": [], "seqs": [], "loss": []}
             outpath = make_directory_where_necessary(
                 Path.cwd() / custom_configs["output-path"] / f"Epoch {e}"
@@ -427,23 +419,6 @@ if __name__ == "__main__":
             )
             printf("Saving Model Checkpoint.")
             torch.save(classifier.state_dict(), outpath / "classifier.pth")
-
-            for i, posdir in custom_configs["positive-path"]:
-                poskfold = open(Path.cwd() / posdir / "kfold.txt", "r").readlines()
-                with open(outpath / f"pos{i}-kfold.txt", "w") as outfile:
-                    outfile.writelines(poskfold[i])
-
-            for i, negdir in custom_configs["negative-path"]:
-                negkfold = open(Path.cwd() / negdir / "kfold.txt", "r").readlines()
-                with open(outpath / f"neg{i}-kfold.txt", "w") as outfile:
-                    outfile.writelines(negkfold[i])
-
-    except Exception as e:
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        printf(f"Error Encountered: Logging Information", "ERROR")
-        if torch.cuda.is_available():
-            printf(f"Torch Memory Taken: {torch.cuda.memory_allocated()}")
-        printf(f"Line {exc_tb.tb_lineno} - {type(e).__name__}: {str(e)}", "ERROR")
 
     except KeyboardInterrupt:
         printf("Interrupted", "INFO")

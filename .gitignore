@@ -10,3 +10,4 @@ data/*/
 */tcrbert-tokenizer/
 
 *.json
+*.safetensors

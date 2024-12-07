@@ -11,11 +11,10 @@ python_path = os.getenv("PYTHONPATH")
 if python_path:
     sys.path.append(python_path)
 
-from dotenv import load_dotenv
 from sceptr import variant
 
-from embed.llm import tcrbert
-from embed.physicochemical import aaprop, atchley, kidera, rand
+from tcr_embeddings.embed.llm import tcrbert
+from tcr_embeddings.embed.physicochemical import aaprop, atchley, kidera, rand
 from reduction import AutoEncoder
 
 if __name__ == "__main__":

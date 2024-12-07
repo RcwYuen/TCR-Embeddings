@@ -15,7 +15,7 @@ import pandas as pd
 import torch
 from transformers import AutoModelForMaskedLM, AutoTokenizer
 
-from embed._embedder import Embedder
+from tcr_embeddings.embed._embedder import Embedder
 
 
 class LLMEncoder(Embedder):
