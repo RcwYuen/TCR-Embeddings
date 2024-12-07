@@ -2,19 +2,15 @@ import os
 import sys
 from pathlib import Path
 
-from dotenv import load_dotenv
-
-dir = Path(__file__).resolve().parent
-load_dotenv(Path.cwd() / ".env")
-python_path = os.getenv("PYTHONPATH")
-if python_path:
-    sys.path.append(python_path)
-
 import pandas as pd
 import torch
 import torch.nn.functional as F
 
+from tcr_embeddings import runtime_constants
 from tcr_embeddings.embed._embedder import Embedder
+
+os.chdir(runtime_constants.HOME_PATH)
+sys.path.append(str(runtime_constants.HOME_PATH))
 
 
 class PhysicoChemicalEncoder(Embedder):
