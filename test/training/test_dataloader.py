@@ -4,8 +4,10 @@ from pathlib import Path
 
 import numpy as np
 from tcr_embeddings.training import dataloader
+from tcr_embeddings import runtime_constants
 
-os.chdir(Path.cwd().parent.parent)
+os.chdir(runtime_constants.HOME_PATH)
+
 
 class test_dataloader(unittest.TestCase):
     def test_ratio(self):

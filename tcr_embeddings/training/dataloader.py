@@ -79,19 +79,17 @@ class Patients(torch.utils.data.Dataset):
                     for i in f.readlines()[self.__kfold].replace("\n", "").split("<>")
                 }
 
-            set_tsvs = list(set_tsvs - set_kfold)
+            ls_tsvs = list(set_tsvs - set_kfold)
 
             ls_train_idx = np.random.choice(
-                np.arange(len(set_tsvs)),
+                np.arange(len(ls_tsvs)),
                 replace=False,
-                size=int(len(set_tsvs) * self.__split),
+                size=int(len(ls_tsvs) * self.__split),
             ).astype(int)
-            ls_val_idx = np.setdiff1d(np.arange(len(set_tsvs)), ls_train_idx).astype(
-                int
-            )
+            ls_val_idx = np.setdiff1d(np.arange(len(ls_tsvs)), ls_train_idx).astype(int)
 
-            self.__training_data += [(label, set_tsvs[i]) for i in ls_train_idx]
-            self.__validation_data += [(label, set_tsvs[i]) for i in ls_val_idx]
+            self.__training_data += [(label, ls_tsvs[i]) for i in ls_train_idx]
+            self.__validation_data += [(label, ls_tsvs[i]) for i in ls_val_idx]
             self.__testing_data += [(label, file) for file in set_kfold]
             self.__ratio[label] += len(ls_train_idx)
 
