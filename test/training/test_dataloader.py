@@ -1,10 +1,10 @@
 import os
 import unittest
-from pathlib import Path
 
 import numpy as np
-from tcr_embeddings.training import dataloader
+
 from tcr_embeddings import runtime_constants
+from tcr_embeddings.training import dataloader
 
 os.chdir(runtime_constants.HOME_PATH)
 
@@ -20,17 +20,19 @@ class test_dataloader(unittest.TestCase):
                 kfold=kf,
             )
 
-            total_positives = len(list((Path.cwd() / "data/Tx/cleaned").glob("*.tsv")))
+            total_positives = len(
+                list((runtime_constants.DATA_PATH / "Tx/cleaned").glob("*.tsv"))
+            )
             total_negatives = len(
-                list((Path.cwd() / "data/tcvhcw/cleaned").glob("*.tsv"))
+                list((runtime_constants.DATA_PATH / "tcvhcw/cleaned").glob("*.tsv"))
             )
 
-            with open(Path.cwd() / "data/Tx/cleaned/kfold.txt") as f:
+            with open(runtime_constants.DATA_PATH / "Tx/cleaned/kfold.txt") as f:
                 total_positives_in_kfold = len(
                     f.readlines()[kf].replace("\n", "").split("<>")
                 )
 
-            with open(Path.cwd() / "data/tcvhcw/cleaned/kfold.txt") as f:
+            with open(runtime_constants.DATA_PATH / "tcvhcw/cleaned/kfold.txt") as f:
                 total_negatives_in_kfold = len(
                     f.readlines()[kf].replace("\n", "").split("<>")
                 )
@@ -43,8 +45,12 @@ class test_dataloader(unittest.TestCase):
             self.assertEqual(neg_ratio, loader.ratio(0))
 
     def test_len(self):
-        total_positives = len(list((Path.cwd() / "data/Tx/cleaned").glob("*.tsv")))
-        total_negatives = len(list((Path.cwd() / "data/tcvhcw/cleaned").glob("*.tsv")))
+        total_positives = len(
+            list((runtime_constants.DATA_PATH / "Tx/cleaned").glob("*.tsv"))
+        )
+        total_negatives = len(
+            list((runtime_constants.DATA_PATH / "tcvhcw/cleaned").glob("*.tsv"))
+        )
         split_ratio = np.linspace(0, 1, 10)
         ls_kfolds = list(range(5))
         for split_val in split_ratio:
@@ -122,8 +128,10 @@ class test_dataloader(unittest.TestCase):
                 self.assertEqual(len(test_set), len(loader))
 
     def test_correct_label_assigned(self):
-        ls_positives = list((Path.cwd() / "data/Tx/cleaned").glob("*.tsv"))
-        ls_negatives = list((Path.cwd() / "data/tcvhcw/cleaned").glob("*.tsv"))
+        ls_positives = list((runtime_constants.DATA_PATH / "Tx/cleaned").glob("*.tsv"))
+        ls_negatives = list(
+            (runtime_constants.DATA_PATH / "tcvhcw/cleaned").glob("*.tsv")
+        )
         split_ratio = np.linspace(0, 1, 10)
         ls_kfolds = list(range(5))
         for split_val in split_ratio:
@@ -150,20 +158,22 @@ class test_dataloader(unittest.TestCase):
                         self.assertTrue(i[1] in ls_positives)
 
     def test_kfolds(self):
-        with open(Path.cwd() / "data/Tx/cleaned/kfold.txt") as f:
+        with open(runtime_constants.DATA_PATH / "Tx/cleaned/kfold.txt") as f:
             ls_pos_kfolds = "".join(f.readlines()).replace("\n", "<>").split("<>")
 
-        with open(Path.cwd() / "data/tcvhcw/cleaned/kfold.txt") as f:
+        with open(runtime_constants.DATA_PATH / "tcvhcw/cleaned/kfold.txt") as f:
             ls_neg_kfolds = "".join(f.readlines()).replace("\n", "<>").split("<>")
 
         self.assertEqual(
-            sorted([Path.cwd() / i for i in ls_pos_kfolds]),
-            sorted(list((Path.cwd() / "data/Tx/cleaned").glob("*.tsv"))),
+            sorted([runtime_constants.HOME_PATH / i for i in ls_pos_kfolds]),
+            sorted(list((runtime_constants.DATA_PATH / "Tx/cleaned").glob("*.tsv"))),
         )
 
         self.assertEqual(
-            sorted([Path.cwd() / i for i in ls_neg_kfolds]),
-            sorted(list((Path.cwd() / "data/tcvhcw/cleaned").glob("*.tsv"))),
+            sorted([runtime_constants.HOME_PATH / i for i in ls_neg_kfolds]),
+            sorted(
+                list((runtime_constants.DATA_PATH / "tcvhcw/cleaned").glob("*.tsv"))
+            ),
         )
 
 
