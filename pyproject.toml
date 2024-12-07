@@ -80,6 +80,8 @@ show_column_numbers = true
 check_untyped_defs = true
 follow_imports = "silent"
 warn_unused_ignores = false
+ignore_missing_imports = true
+explicit_package_bases = true
 modules = [
     "matplotlib",
     "matplotlib.colours",
@@ -94,7 +96,7 @@ modules = [
     "torch",
     "virtualenv.config.convert"
 ]
-ignore_missing_imports = true
+mypy_path = ["."]
 
 [tool.flake8]
 max-line-length = 88
