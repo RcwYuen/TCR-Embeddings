@@ -68,7 +68,7 @@ class JohnsonLindenstarauss:
             case torch.Tensor:
                 # mypy ignoring below as we checked the type is torch.Tensor before going in, so the following
                 # operation is safe
-                obj = obj.cuda() if torch.cuda.is_available() else obj # type: ignore
+                obj = obj.cuda() if torch.cuda.is_available() else obj  # type: ignore
                 transformation = self.transformation_tensor.clone()
                 transformed = obj @ transformation
                 norms = torch.norm(transformed, dim=1).unsqueeze(1)
@@ -168,7 +168,6 @@ class AutoEncoder:
                 for fno, file in enumerate(dataset_paths):
                     df = pd.read_csv(file, sep="\t", dtype=str)
                     df = df.sample(frac=1).reset_index(drop=True)
-                    num_batches = int(np.ceil(len(df) / self._batchsize))
                     for batchno, x in enumerate(
                         AutoEncoder._batches(df, self._batchsize)
                     ):
@@ -187,7 +186,8 @@ class AutoEncoder:
                         loss.backward()
                         optim.step()
                         print(
-                            f"{self._method_name.upper()} | Epoch {epoch:2} / 10 - File {fno:3} / {len(dataset_paths):3} - Batch {batchno:5} / {num_batches:5} | Loss {loss.data.mean():6}"
+                            f"{self._method_name.upper()} | Epoch {epoch:2} / 10 - File {fno:3} /"
+                            + "{len(dataset_paths):3} - Batch {batchno:5} / {num_batches:5} | Loss {loss.data.mean():6}"
                         )
 
         except KeyboardInterrupt:
