@@ -39,5 +39,4 @@ for p in dirs.glob("*/kfold-*"):
         + "Status: {status:8}  |  Stale: {stale} mins"
     )
 
-outstrs = "\n".join(sorted(outstrs))
-print(outstrs)
+print("\n".join(sorted(outstrs)))

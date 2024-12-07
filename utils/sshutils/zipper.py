@@ -6,7 +6,7 @@ dirs = Path(__file__).resolve().parent
 
 paths = ["embed/", "reduction/"]
 
-files = []
+files: list = []
 for path in paths:
     files = files + list(glob.glob(path + "**", recursive=True))
 
