@@ -17,9 +17,9 @@ class MIClassifier(torch.nn.Module):
         self.relu = torch.nn.ReLU()
         self.sig = torch.nn.Sigmoid()
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         self.last_scores = self.attention(x)
-        self.last_weights = self.sparsemax(self.last_scores.T).T
+        self.last_weights = self.sparsemax(self.last_scores.T).T  # type: ignore
         aggregated = torch.sum(self.last_weights * x, dim=0, keepdim=True)
         return self.sig(self.classifying(aggregated))
 
