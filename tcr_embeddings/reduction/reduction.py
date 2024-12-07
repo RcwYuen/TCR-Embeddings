@@ -2,13 +2,11 @@ import os
 import sys
 from pathlib import Path
 
-from dotenv import load_dotenv
+from tcr_embeddings import runtime_constants
 
-dir = Path(__file__).resolve().parent
-load_dotenv(Path.cwd() / ".env")
-python_path = os.getenv("PYTHONPATH")
-if python_path:
-    sys.path.append(python_path)
+os.chdir(runtime_constants.HOME_PATH)
+sys.path.append(str(runtime_constants.HOME_PATH))
+
 
 import random
 import warnings
@@ -22,7 +20,7 @@ class NoReduce:
     def __init__(self):
         pass
 
-    def reduce(self, obj):
+    def reduce(self, obj: np.ndarray | torch.tensor) -> np.ndarray | torch.tensor:
         return obj / (np.linalg.norm(obj, axis=1)[:, None])
 
 
