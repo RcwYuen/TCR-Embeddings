@@ -52,6 +52,9 @@ intel-cmplr-lib-ur = "2025.0.3"
 intel-openmp = "2025.0.3"
 
 
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.13.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
@@ -67,17 +70,14 @@ target-version = ["py312"]
 color = true
 skip_magic_trailing_comma = true
 
-[tools.mypy]
+[tool.mypy]
 exclude = "(logs|output)/"
-warn_unused_config = true
 warn_redundant_casts = true
 show_error_codes = true
 show_column_numbers = true
 check_untyped_defs = true
 follow_imports = "silent"
 warn_unused_ignores = false
-
-[tools.mypy.overrides]
 modules = [
     "matplotlib",
     "matplotlib.colours",
@@ -89,9 +89,11 @@ modules = [
     "polars",
     "tqdm",
     "csv",
+    "torch",
+    "virtualenv.config.convert"
 ]
 ignore_missing_imports = true
 
-[tools.flake8]
+[tool.flake8]
 max-line-length = 88
 extend-ignore = ["E203", "W503", "E501"]
