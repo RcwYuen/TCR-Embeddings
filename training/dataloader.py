@@ -1,24 +1,25 @@
-import random
+from typing import List, Any
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import torch
+from pandas import DataFrame
 
 
 class Patients(torch.utils.data.Dataset):
     def __init__(
         self,
         split: float = 0.8,
-        positives: list = [],
-        negatives: list = [],
+        positives: List[str] = [],
+        negatives: List[str] = [],
         kfold: int = 0,
     ) -> None:
         super(Patients, self).__init__()
         # 1 for training, 0 for validation, -1 for test
         self.__mode: int = 1
-        self.__positives: list = positives
-        self.__negatives: list = negatives
+        self.__positives: List[str] = positives
+        self.__negatives: List[str] = negatives
         self.__split: float = split
         self.__kfold: int = kfold
 
@@ -51,7 +52,7 @@ class Patients(torch.utils.data.Dataset):
     def __len__(self) -> int:
         return len(self.__data[self.__mode])
 
-    def __getitem__(self, idx) -> int:
+    def __getitem__(self, idx) -> list[DataFrame | Any]:
         label, fname = self.__data[self.__mode][idx]
         return [label, pd.read_csv(fname, sep="\t", dtype=str)]
 

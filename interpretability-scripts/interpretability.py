@@ -4,13 +4,12 @@ import sys
 os.chdir("C:/Users/rcwyuen/OneDrive/Studies/UCL/Publications/TCR-Embeddings")
 sys.path.append("C:/Users/rcwyuen/OneDrive/Studies/UCL/Publications/TCR-Embeddings")
 
-import os
 import re
-from pathlib import Path
 
-import pandas as pd
-import torch
 from sklearn.metrics import roc_auc_score
+from embed.physicochemical import *
+from embed.llm import tcrbert
+from sceptr import variant
 from tqdm import tqdm
 
 import reduction.reduction as reducer
@@ -21,9 +20,9 @@ data_src = "results/"
 src = Path("C:/Users/rcwyuen/OneDrive/Studies/UCL/Publications/TCR-Embeddings")
 
 
-def read_kfold_set(pth, label):
-    with open(pth, "r") as f:
-        kf = f.readlines()
+def read_kfold_set(pth: Path, label: int) -> list[tuple[str, int]]:
+    with open(pth, "r") as evalFile:
+        kf = evalFile.readlines()
         assert len(kf) == 1
         return [(file, label) for file in kf[0].split("<>")]
 
@@ -47,43 +46,30 @@ def find_best_epoch(pth):
 
 
 def method_name_to_func(method_name):
-    if method_name == "atchley":
-        from embed.physicochemical import atchley
+    match method_name:
+        case "atchley":
+            return atchley()
 
-        return atchley()
+        case "kidera":
+            return kidera()
 
-    elif method_name == "kidera":
-        from embed.physicochemical import kidera
+        case "rand":
+            return rand()
 
-        return kidera()
+        case "aaprop":
+            return aaprop()
 
-    elif method_name == "rand":
-        from embed.physicochemical import rand
+        case "tcrbert":
+            return tcrbert()
 
-        return rand()
+        case "sceptr-tiny":
+            return variant.tiny()
 
-    elif method_name == "aaprop":
-        from embed.physicochemical import aaprop
+        case "sceptr-default":
+            return variant.default()
 
-        return aaprop()
-
-    elif method_name == "tcrbert":
-        from embed.llm import tcrbert
-
-        return tcrbert()
-
-    elif method_name == "sceptr-tiny":
-        from sceptr import variant
-
-        return variant.tiny()
-
-    elif method_name == "sceptr-default":
-        from sceptr import variant
-
-        return variant.default()
-
-    else:
-        raise ValueError("Cannot parse Method Name.")
+        case _:
+            raise ValueError("Cannot parse Method Name.")
 
 
 def find_method(pth):

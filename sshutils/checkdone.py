@@ -3,7 +3,7 @@ import time
 from pathlib import Path
 
 
-def get_epoch(base_path):
+def get_epoch(base_path: Path) -> int:
     max_epoch = -1
     pattern = re.compile(r"^Epoch (\d+)$")
 
@@ -16,14 +16,14 @@ def get_epoch(base_path):
     return max_epoch
 
 
-def stale_flag(cur_epoch, p):
+def stale_flag(cur_epoch: int, p: Path) -> float:
     curr_epoch = (p / f"Epoch {cur_epoch}").stat().st_mtime
     return (time.time() - curr_epoch) / 60
 
 
-dir = Path.cwd() / "results"
+dirs = Path.cwd() / "results"
 outstrs = []
-for p in dir.glob("*/kfold-*"):
+for p in dirs.glob("*/kfold-*"):
     curepoch = get_epoch(p)
     done = str((p / "classifier-trained.pth").exists())
     stale = round(stale_flag(curepoch, p))
@@ -35,7 +35,7 @@ for p in dir.glob("*/kfold-*"):
         status = "Testing"
 
     outstrs.append(
-        f"{str(p.relative_to(dir)):40}  |  Current Epoch {curepoch:3}  |  Done: {done:5}  |  Status: {status:8}  |  Stale: {stale} mins"
+        f"{str(p.relative_to(dirs)):40}  |  Current Epoch {curepoch:3}  |  Done: {done:5}  |  Status: {status:8}  |  Stale: {stale} mins"
     )
 
 outstrs = "\n".join(sorted(outstrs))

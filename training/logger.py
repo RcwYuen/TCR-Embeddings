@@ -3,21 +3,21 @@ from datetime import datetime
 
 
 class Logger:
-    def __init__(self, filename, opening_mode="w"):
-        self.filename = filename
+    def __init__(self, filename: str, opening_mode: str = "w") -> None:
+        self.filename: str = filename
         self.outfile = open(filename, opening_mode)
-        self.initialized = True
-        self.streams = [sys.stdout, self.outfile]
+        self.initialized: bool = True
+        self.streams: list = [sys.stdout, self.outfile]
 
-    def write(self, message, severity=""):
+    def write(self, message: str, severity: str = "") -> None:
         severity = f"[{severity}] " if severity != "" else severity
         for stream in self.streams:
             stream.write(f"[{str(datetime.now())}]: {severity.upper()}{message}\n")
             stream.flush()
 
-    def flush(self):
+    def flush(self) -> None:
         for stream in self.streams:
             stream.flush()
 
-    def close(self):
+    def close(self) -> None:
         self.streams[-1].close()
