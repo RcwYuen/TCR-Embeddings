@@ -16,11 +16,8 @@ jobs:
 
       - name: Setup - Download Conda
         run: |
-          # Step 1: Download and install Miniconda (if not already installed)
           wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
           bash miniconda.sh -b -p $HOME/miniconda
-
-          # Step 2: Add Miniconda to the PATH
           echo "$HOME/miniconda/bin" >> $GITHUB_PATH
 
       - name: Setup - List Conda Environments
@@ -30,13 +27,11 @@ jobs:
 
       - name: Setup - Conda Venv
         run: |
-          # Step 3: Create the Conda environment
           conda create --name tcr_embeddings python=3.12 -y
           conda env list
 
       - name: Setup - Activate Conda
         run: |
-          # Step 4: Activate the Conda environment
           source $HOME/miniconda/etc/profile.d/conda.sh  # This ensures conda works in the current shell
           conda activate tcr_embeddings
 
@@ -47,17 +42,17 @@ jobs:
           poetry install
 
 
-      - name: Check - Code Formatting
+      - name: Check - Code Formatting [black]
         run: black . --check
 
-      - name: Check - Import Order
+      - name: Check - Import Order [isort]
         run: isort . --check --diff
 
-      - name: Linting - flake8
+      - name: Check - Linting [flake8]
         run: flake8 .
 
-      - name: Check - Types
+      - name: Check - Types [mypy]
         run: mypy .
 
-      - name: Check - Unit Tests
+      - name: Check - Unit Tests [unittest]
         run: python -m unittest discover -s tests -p "*.py"
