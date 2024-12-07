@@ -16,22 +16,13 @@ jobs:
 
       - name: Set up Python
         run: |
-        # Step 1: Create the Conda environment
-        conda create --name tcr_embeddings python=3.12 -y
-        
-        # Step 2: Run conda init (sets up the shell to support conda activate)
-        conda init bash
-
-        # Step 3: Source the shell configuration to apply conda init (needed in CI)
-        source ~/.bashrc  # or ~/.bash_profile, depending on the shell
-        
-        # Step 4: Activate the environment
-        conda activate tcr_embeddings
-
-        # Step 5: Install dependencies
-        python -m pip install --upgrade pip
-        python -m pip install poetry
-        poetry install
+          conda create --name tcr_embeddings python=3.12 -y
+          conda init bash
+          source ~/.bashrc  # or ~/.bash_profile, depending on the shell
+          conda activate tcr_embeddings
+          python -m pip install --upgrade pip
+          python -m pip install poetry
+          poetry install
 
       - name: Check code formatting with black
         run: black . --check
