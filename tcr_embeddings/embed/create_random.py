@@ -12,7 +12,7 @@ sys.path.append(str(runtime_constants.HOME_PATH))
 amino_acids = list("ACDEFGHIKLMNPQRSTVWY")
 
 
-def generate(dim=5, method=lambda shape: np.random.uniform(0, 1, size=shape)):
+def generate(dim=5, method=lambda shape: np.random.uniform(0, 1, size=shape)) -> None:
     colnames = [f"f.{i}" for i in range(dim)]
     embeddings = pd.DataFrame(
         method((len(amino_acids), 5)), index=amino_acids, columns=colnames

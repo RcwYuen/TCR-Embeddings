@@ -8,7 +8,7 @@ import torch
 from transformers import AutoModelForMaskedLM, AutoTokenizer
 
 from tcr_embeddings import runtime_constants
-from tcr_embeddings.embed._embedder import Embedder
+from tcr_embeddings.embed.embedder import Embedder
 
 os.chdir(runtime_constants.HOME_PATH)
 sys.path.append(str(runtime_constants.HOME_PATH))
@@ -52,8 +52,12 @@ class LLMEncoder(Embedder):
             ).tolist()
         return np.array(embeddings)
 
-    def _get_df(self, fname: str):
+    def _get_df(self, fname: str | Path):
         pass
+
+    def get_out_dim(self) -> int:
+        df_sample = pd.read_csv(runtime_constants.DATA_PATH / "sample.tsv", sep="\t")
+        return self.calc_vector_representations(df_sample).shape[1]
 
 
 def tcrbert() -> LLMEncoder:

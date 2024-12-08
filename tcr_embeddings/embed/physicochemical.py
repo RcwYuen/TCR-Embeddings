@@ -2,19 +2,20 @@ import os
 import sys
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import torch
 import torch.nn.functional as F
 
 from tcr_embeddings import runtime_constants
-from tcr_embeddings.embed._embedder import Embedder
+from tcr_embeddings.embed.embedder import Embedder
 
 os.chdir(runtime_constants.HOME_PATH)
 sys.path.append(str(runtime_constants.HOME_PATH))
 
 
 class PhysicoChemicalEncoder(Embedder):
-    def __init__(self, fname):
+    def __init__(self, fname: str) -> None:
         loc = Path(__file__).resolve().parent
         self.embedding_space = self._get_df(loc / fname)
         self.amino_acid_to_index = {
@@ -29,12 +30,17 @@ class PhysicoChemicalEncoder(Embedder):
             else self.embedding_tensor
         )
 
-    def _get_df(self, fname):
+    def _get_df(self, fname: str | Path) -> pd.DataFrame:
         df = pd.read_csv(fname, sep="\t").set_index("amino.acid").sort_index()
         df = (df.max() - df) / (df.max() - df.min())
         return df
 
-    def calc_vector_representations(self, df, *args, **kwargs):
+    def get_out_dim(self) -> int:
+        return self.embedding_space.shape[1]
+
+    def calc_vector_representations(
+        self, df: pd.DataFrame, *args, **kwargs
+    ) -> np.ndarray:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         # The embedding tensor is already moved to GPU in __init__
