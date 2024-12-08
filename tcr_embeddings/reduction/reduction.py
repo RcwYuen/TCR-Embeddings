@@ -3,13 +3,13 @@ import random
 import sys
 import warnings
 from pathlib import Path
-from typing import Callable
 
 import numpy as np
 import pandas as pd
 import torch
 
 from tcr_embeddings import runtime_constants
+from tcr_embeddings.embed.embedder import Embedder
 
 os.chdir(runtime_constants.HOME_PATH)
 sys.path.append(str(runtime_constants.HOME_PATH))
@@ -117,14 +117,14 @@ class _Autoencoder(torch.nn.Module):
 class AutoEncoder:
     def __init__(
         self,
-        encoding_method: Callable,
+        encoding_method: Embedder,
         method_name: str,
         out_dim=5,
         batchsize: int = 1024,
     ):
         self._encoder_fname = f"{method_name}_encoder.pth"
         self._decoder_fname = f"{method_name}_decoder.pth"
-        self._encoding_method = encoding_method
+        self._encoding_method: Embedder = encoding_method
         self._method_name = method_name
         self._batchsize = batchsize
         self.out_dim = out_dim
@@ -146,14 +146,14 @@ class AutoEncoder:
             yield df[start : start + batch_size]
 
     def get_in_dim(self):
-        return self._encoding_method.calc_vector_representations(  # type: ignore
+        return self._encoding_method.calc_vector_representations(
             pd.read_csv(runtime_constants.DATA_PATH / "sample.tsv", sep="\t", dtype=str)
         ).shape[1]
 
     def create_transformation(self, dataset_paths):
         try:
             random.shuffle(dataset_paths)
-            in_dim = self._encoding_method.calc_vector_representations(  # type: ignore
+            in_dim = self._encoding_method.calc_vector_representations(
                 pd.read_csv(dataset_paths[0], sep="\t", dtype=str).head()
             ).shape[1]
 
@@ -172,11 +172,11 @@ class AutoEncoder:
                         AutoEncoder._batches(df, self._batchsize)
                     ):
                         try:
-                            x = self._encoding_method.calc_vector_representations(  # type: ignore
+                            x = self._encoding_method.calc_vector_representations(
                                 x, batchsize=self._batchsize
                             )
                         except TypeError:
-                            x = self._encoding_method.calc_vector_representations(x)  # type: ignore
+                            x = self._encoding_method.calc_vector_representations(x)
 
                         x = torch.from_numpy(x).to(torch.float32)
                         x = x.cuda() if torch.cuda.is_available() else x
@@ -209,7 +209,7 @@ class AutoEncoder:
             self.encoder = autoencoder.encoder
 
     def load_transformation(self):
-        in_dim = self._encoding_method.calc_vector_representations(  # type: ignore
+        in_dim = self._encoding_method.calc_vector_representations(
             pd.read_csv(runtime_constants.DATA_PATH / "sample.tsv", sep="\t", dtype=str)
         ).shape[1]
 
