@@ -47,14 +47,14 @@ class PhysicoChemicalEncoder(Embedder):
         embedding_tensor = self.embedding_tensor
 
         # Combine and clean the sequences
-        tcrs = pd.concat([df["CDR3A"].dropna(), df["CDR3B"].dropna()])
-        tcrs = tcrs.apply(
+        df_tcrs = pd.concat([df["CDR3A"].dropna(), df["CDR3B"].dropna()])
+        df_tcrs = df_tcrs.apply(
             lambda tcr: "".join(filter(self.amino_acid_to_index.__contains__, tcr))
         )
 
         # Initialize the representation matrix
         rep = torch.zeros(
-            (len(tcrs), embedding_tensor.shape[1]), dtype=torch.float32, device=device
+            (len(df_tcrs), embedding_tensor.shape[1]), dtype=torch.float32, device=device
         )
 
         # Preprocess sequences on the CPU
@@ -62,7 +62,7 @@ class PhysicoChemicalEncoder(Embedder):
             torch.tensor(
                 [self.amino_acid_to_index[char] for char in tcr], dtype=torch.long
             )
-            for tcr in tcrs
+            for tcr in df_tcrs
             if tcr
         ]
 

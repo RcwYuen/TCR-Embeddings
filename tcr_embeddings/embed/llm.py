@@ -56,8 +56,7 @@ class LLMEncoder(Embedder):
         pass
 
     def get_out_dim(self) -> int:
-        df_sample = pd.read_csv(runtime_constants.DATA_PATH / "sample.tsv", sep="\t")
-        return self.calc_vector_representations(df_sample).shape[1]
+        return self.calc_vector_representations(runtime_constants.DF_SAMPLE).shape[1]
 
 
 def tcrbert() -> LLMEncoder:

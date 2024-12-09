@@ -104,3 +104,15 @@ class Patients(torch.utils.data.Dataset):
 
     def validation(self) -> None:
         self.__mode = 0
+
+    def get_mode(self) -> str:
+        match self.__mode:
+            case 1:
+                return "train"
+            case -1:
+                return "test"
+            case 0:
+                return "eval"
+
+            case _:
+                raise Exception("Internal Variable '__mode' is corrupted.")
