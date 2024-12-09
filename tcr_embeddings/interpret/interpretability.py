@@ -1,5 +1,6 @@
 import os
 import sys
+
 from tcr_embeddings import runtime_constants
 
 os.chdir(runtime_constants.HOME_PATH)
@@ -7,14 +8,14 @@ sys.path.append(str(runtime_constants.HOME_PATH))
 
 import re
 
-from sklearn.metrics import roc_auc_score
-from tcr_embeddings.embed.physicochemical import *
-from tcr_embeddings.embed.llm import tcrbert
 from sceptr import variant
+from sklearn.metrics import roc_auc_score
 from tqdm import tqdm
 
-from tcr_embeddings.reduction import reduction as reducer
 import tcr_embeddings.training.models as model
+from tcr_embeddings.embed.llm import tcrbert
+from tcr_embeddings.embed.physicochemical import *
+from tcr_embeddings.reduction import reduction as reducer
 
 use_cuda = False
 data_src = "results/"
@@ -153,50 +154,51 @@ def make_interpretability_dir():
         pass
 
 
-ls_method_kf_dirs = list((src / data_src).glob("**/kfold-*"))
+if __name__ == "__main__":
+    ls_method_kf_dirs = list((src / data_src).glob("**/kfold-*"))
 
-for idx, method_kf in enumerate(ls_method_kf_dirs):
-    ls_positive = read_kfold_set(method_kf / "pos0-kfold.txt", 1)
-    ls_negative = read_kfold_set(method_kf / "neg0-kfold.txt", 0)
-    ls_kfs = ls_positive + ls_negative
-    best_epoch, best_epoch_auc = find_best_epoch(method_kf)
-    model_encoding, model_reducer = find_method(method_kf)
-    model_trained = load_trained_model(model_encoding, model_reducer, best_epoch)
-    make_interpretability_dir()
+    for idx, method_kf in enumerate(ls_method_kf_dirs):
+        ls_positive = read_kfold_set(method_kf / "pos0-kfold.txt", 1)
+        ls_negative = read_kfold_set(method_kf / "neg0-kfold.txt", 0)
+        ls_kfs = ls_positive + ls_negative
+        best_epoch, best_epoch_auc = find_best_epoch(method_kf)
+        model_encoding, model_reducer = find_method(method_kf)
+        model_trained = load_trained_model(model_encoding, model_reducer, best_epoch)
+        make_interpretability_dir()
 
-    if (method_kf / "interpretability/results_log.csv").exists() and (
-        method_kf / "interpretability/used_model.txt"
-    ).exists():
-        continue
+        if (method_kf / "interpretability/results_log.csv").exists() and (
+            method_kf / "interpretability/used_model.txt"
+        ).exists():
+            continue
 
-    df_repertoire_with_label = pd.DataFrame(
-        {"filenames": [], "true": [], "prediction": []}
-    )
-    for pth_file, label in tqdm(
-        ls_kfs,
-        desc=str(method_kf.relative_to(Path.cwd() / "results"))
-        + f"; Progress: {idx+1}/{len(ls_method_kf_dirs)}",
-    ):
-        df, pred = get_result(pth_file, model_encoding, model_reducer, model_trained)
-        df_repertoire_with_label = pd.concat(
-            [
-                df_repertoire_with_label,
-                pd.DataFrame(
-                    {
-                        "filenames": [pth_file],
-                        "true": [label],
-                        "prediction": [pred.item()],
-                    }
-                ),
-            ]
+        df_repertoire_with_label = pd.DataFrame(
+            {"filenames": [], "true": [], "prediction": []}
         )
-        df.to_parquet(
-            method_kf / "interpretability" / Path(pth_file).name.replace(".tsv", ".pq")
+        for pth_file, label in tqdm(
+            ls_kfs,
+            desc=str(method_kf.relative_to(Path.cwd() / "results"))
+            + f"; Progress: {idx+1}/{len(ls_method_kf_dirs)}",
+        ):
+            df, pred = get_result(pth_file, model_encoding, model_reducer, model_trained)
+            df_repertoire_with_label = pd.concat(
+                [
+                    df_repertoire_with_label,
+                    pd.DataFrame(
+                        {
+                            "filenames": [pth_file],
+                            "true": [label],
+                            "prediction": [pred.item()],
+                        }
+                    ),
+                ]
+            )
+            df.to_parquet(
+                method_kf / "interpretability" / Path(pth_file).name.replace(".tsv", ".pq")
+            )
+
+        df_repertoire_with_label.set_index("filenames").to_csv(
+            method_kf / "interpretability/results_log.csv"
         )
 
-    df_repertoire_with_label.set_index("filenames").to_csv(
-        method_kf / "interpretability/results_log.csv"
-    )
-
-    with open(method_kf / "interpretability/used_model.txt", "w") as f:
-        f.write(f"Used Epoch: {best_epoch} with AUC {best_epoch_auc}")
+        with open(method_kf / "interpretability/used_model.txt", "w") as f:
+            f.write(f"Used Epoch: {best_epoch} with AUC {best_epoch_auc}")
