@@ -39,6 +39,14 @@ sys.path.append(str(runtime_constants.HOME_PATH))
 logger: None | Logger = None
 start_time: None | float = None
 
+"""
+TODO:
+- Add printing method to all constants (so resume can run based on the previously set constants not the new ones).
+- Add check to the end of iteration function, so it makes sure that all gradients are descended before 
+  concluding the batch.
+- Add interpretability executions to the end of training loop (at the end of all epochs).
+"""
+
 
 def create_logger(output_path, parser) -> Logger:
     global logger
@@ -310,7 +318,6 @@ def summarise_epoch(
     classifier: torch.nn.Module,
     output_path: Path,
 ) -> None:
-
     printf(f"Epoch {current_epoch} / {constants.EPOCHS} - Completed.")
     printf(
         f"Epoch {current_epoch} / {constants.EPOCHS} - Average Training Loss: "
