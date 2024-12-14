@@ -1,3 +1,4 @@
+import copy
 import json
 import os
 import sys
@@ -8,6 +9,7 @@ import pandas as pd
 import torch
 
 from tcr_embeddings import runtime_constants
+from tcr_embeddings.interpret import interpretability
 from tcr_embeddings.training import training_utils as utils
 
 os.chdir(runtime_constants.HOME_PATH)
@@ -97,6 +99,14 @@ if __name__ == "__main__":
             utils.summarise_epoch(e, loss_record, classifier, out_path)
 
         utils.export_kfold_set(OUTPUT_PATH, configs)
+
+        utils.printf("Finding interpretability scripts", "INFO")
+        interpretability.run(
+            configs=configs,
+            dataset=dataset,
+            model=copy.deepcopy(classifier),
+            outpath=OUTPUT_PATH,
+        )
 
     except KeyboardInterrupt:
         utils.printf("Interrupted", "INFO")
