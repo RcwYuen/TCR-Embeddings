@@ -44,6 +44,10 @@ class Patients(torch.utils.data.Dataset):
             self.__training_data,
             self.__testing_data,
         ]
+        self.__getfname = False
+
+    def set_get_fname_mode(self, state: bool) -> None:
+        self.__getfname = state
 
     def total_files(self) -> int:
         return sum(len(i) for i in self.__data)
@@ -67,7 +71,10 @@ class Patients(torch.utils.data.Dataset):
 
     def __getitem__(self, idx: int) -> list[DataFrame | Any]:
         label, fname = self.__data[self.__mode][idx]
-        return [label, pd.read_csv(fname, sep="\t", dtype=str)]
+        if self.__getfname:
+            return [label, fname, pd.read_csv(fname, sep="\t", dtype=str)]
+        else:
+            return [label, pd.read_csv(fname, sep="\t", dtype=str)]
 
     def __load_kfold(self, directories: list, label: int) -> None:
         for directory in directories:
