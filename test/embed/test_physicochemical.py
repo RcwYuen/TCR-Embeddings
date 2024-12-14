@@ -1,6 +1,5 @@
 import unittest
 
-import numpy as np
 import pandas as pd
 
 from tcr_embeddings import runtime_constants
@@ -14,11 +13,11 @@ class test_physicochemical(unittest.TestCase):
 
     # THE FOLLOWING ARE EXPECTED OUTPUTS OF EMBEDDING AMINO ACID 'CAT'
     prot = "CAT"
-    LS_EXPT_EMBEDDED: list[np.ndarray] = [
-        atchley().embedding_space.loc[list(prot)].mean(axis=0).values,
-        kidera().embedding_space.loc[list(prot)].mean(axis=0).values,
-        aaprop().embedding_space.loc[list(prot)].mean(axis=0).values,
-        rand().embedding_space.loc[list(prot)].mean(axis=0).values,
+    LS_EXPT_EMBEDDED: list[list[float]] = [
+        atchley().embedding_space.loc[list(prot)].mean(axis=0).tolist(),
+        kidera().embedding_space.loc[list(prot)].mean(axis=0).tolist(),
+        aaprop().embedding_space.loc[list(prot)].mean(axis=0).tolist(),
+        rand().embedding_space.loc[list(prot)].mean(axis=0).tolist(),
     ]
 
     DF_SAMPLE_INPUT = pd.DataFrame(
@@ -63,7 +62,7 @@ class test_physicochemical(unittest.TestCase):
                 test_physicochemical.DF_SAMPLE_INPUT
             ).tolist()[0]
 
-            for e1, e2 in zip(ls_embedded, expt_outcome.tolist()):
+            for e1, e2 in zip(ls_embedded, expt_outcome):
                 self.assertTrue(abs(e1 - e2) < 0.0001)
 
 
