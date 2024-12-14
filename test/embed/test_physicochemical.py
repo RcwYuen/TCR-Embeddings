@@ -58,7 +58,9 @@ class test_physicochemical(unittest.TestCase):
             test_physicochemical.LS_ALL_PHYSICOEMBEDDERS,
             test_physicochemical.LS_EXPT_EMBEDDED,
         ):
-            ls_embedded: list[float] = embedder.calc_vector_representations(
+            # (only applies to github's mypy)
+            # for some reason this said incompatible types in assignment
+            ls_embedded: list[float] = embedder.calc_vector_representations(  # type: ignore
                 test_physicochemical.DF_SAMPLE_INPUT
             ).tolist()[0]
 
