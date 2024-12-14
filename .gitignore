@@ -9,6 +9,6 @@ data/*/
 */tcrbert-tokenizer/
 **/.mypy_cache
 **/.vscode
+**/embed/tcrbert*
 
-*.json
 *.safetensors
