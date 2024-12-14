@@ -1,4 +1,5 @@
 import argparse
+import ast
 import datetime
 import json
 import os
@@ -11,7 +12,7 @@ import pandas as pd
 import torch
 from sceptr import Sceptr, variant
 
-from tcr_embeddings import constants, runtime_constants
+from tcr_embeddings import runtime_constants
 from tcr_embeddings.embed.llm import LLMEncoder, tcrbert
 from tcr_embeddings.embed.physicochemical import (
     PhysicoChemicalEncoder,
@@ -41,19 +42,20 @@ start_time: None | float = None
 
 """
 TODO:
-- Add printing method to all constants (so resume can run based on the previously set constants not the new ones).
-- Add check to the end of iteration function, so it makes sure that all gradients are descended before 
-  concluding the batch.
+- Add printing method to all runtime_constants (so resume can run based on the previously set runtime_constants not the new ones).
 - Add interpretability executions to the end of training loop (at the end of all epochs).
 """
 
 
-def create_logger(output_path, parser) -> Logger:
+def create_logger(output_path: Path, log_fname: str, opening_mode: str = "w") -> Logger:
     global logger
     logger = Logger(
-        output_path / parser.log_file
-        if parser.log_file is not None
-        else output_path / "training.log"
+        (
+            output_path / log_fname
+            if log_fname is not None
+            else output_path / "training.log"
+        ),
+        opening_mode=opening_mode,
     )
     return logger
 
@@ -126,10 +128,8 @@ def make_directory_where_necessary(directory: Path) -> Path:
     return directory
 
 
-def get_embedding_method(
-    encoding_str: str,
-) -> PhysicoChemicalEncoder | Sceptr | LLMEncoder:
-    match encoding_str:
+def get_embedding_method(configs: dict) -> PhysicoChemicalEncoder | Sceptr | LLMEncoder:
+    match configs["encoding"]:
         case "atchley":
             return atchley()
 
@@ -189,7 +189,7 @@ def load_configs(custom_configs: dict) -> dict:
         else:
             raise ValueError(f"Unrecognised Configuration Found: {key}")
 
-    configs["encoding-method"] = get_embedding_method(configs["encoding"])
+    configs["encoding-method"] = get_embedding_method(configs)
     configs["reducer"] = get_reduction(configs)
     return configs
 
@@ -207,7 +207,7 @@ def calculate_embeddings(df: pd.DataFrame, configs: dict) -> torch.Tensor:
     embeddings = torch.from_numpy(embeddings).to(torch.float32)
     return (
         embeddings.cuda()
-        if torch.cuda.is_available() and constants.USE_CUDA
+        if torch.cuda.is_available() and runtime_constants.USE_CUDA
         else embeddings
     )
 
@@ -215,30 +215,49 @@ def calculate_embeddings(df: pd.DataFrame, configs: dict) -> torch.Tensor:
 def create_label(label: int, pred: torch.Tensor) -> torch.Tensor:
     label_t = torch.full_like(pred, label, dtype=torch.float32)
     return (
-        label_t.cuda() if torch.cuda.is_available() and constants.USE_CUDA else label_t
+        label_t.cuda()
+        if torch.cuda.is_available() and runtime_constants.USE_CUDA
+        else label_t
     )
 
 
 def create_optimiser(classifier: torch.nn.Module) -> torch.optim.Optimizer:
     optim = torch.optim.Adam(
-        classifier.parameters(), lr=constants.LR, weight_decay=constants.L2_PENALTY
+        classifier.parameters(),
+        lr=runtime_constants.LR,
+        weight_decay=runtime_constants.L2_PENALTY,
     )
     optim.zero_grad()
     return optim
 
 
-def create_classifier(configs: dict) -> MIClassifier:
+def create_classifier(
+    configs: dict, trained_classifier_pth: None | Path = None
+) -> MIClassifier:
     if configs["reduction"] == "no-reduction":
-        return ordinary_classifier(configs["encoding-method"])
+        model = ordinary_classifier(configs["encoding-method"])
     else:
-        return reduced_classifier()
+        model = reduced_classifier()
+
+    if trained_classifier_pth is None:
+        return model
+
+    model.load_state_dict(
+        torch.load(
+            trained_classifier_pth,
+            map_location="cuda" if torch.cuda.is_available() else "cpu",
+            weights_only=True,
+        )
+    )
+
+    return model
 
 
 def create_dataset(configs: dict) -> Patients:
     dataset = Patients(
-        split=constants.TRAIN_TEST_SPLIT,
-        positives=constants.PATH_POSITIVE_CLASS,
-        negatives=constants.PATH_NEGATIVE_CLASS,
+        split=runtime_constants.TRAIN_TEST_SPLIT,
+        positives=runtime_constants.PATH_POSITIVE_CLASS,
+        negatives=runtime_constants.PATH_NEGATIVE_CLASS,
         kfold=configs["kfold"],
     )
 
@@ -289,10 +308,12 @@ def iterate_through_files(
             loss /= dataset.ratio(label)
             loss.backward()
 
-            if ((idx + 1) % constants.ACCUMMULATION == 0) or (idx == len(dataset) - 1):
+            if ((idx + 1) % runtime_constants.ACCUMMULATION == 0) or (
+                idx == len(dataset) - 1
+            ):
                 printf("Updating Network")
                 ls_accummulated_loss = current_epoch_records["loss"][
-                    -constants.ACCUMMULATION :
+                    -runtime_constants.ACCUMMULATION :
                 ]
                 printf(
                     f"Accummulated Losses (Averaged): {np.mean(ls_accummulated_loss)}"
@@ -304,7 +325,7 @@ def iterate_through_files(
             current_file_no + idx + 1,
             dataset.total_files(),
             current_epoch,
-            constants.EPOCHS,
+            runtime_constants.EPOCHS,
         )
         printf(f"Projected Completion Date: {completion_time}")
         printf(f"Percentage Done: {round(pctdone * 100, 5)}%")
@@ -318,18 +339,18 @@ def summarise_epoch(
     classifier: torch.nn.Module,
     output_path: Path,
 ) -> None:
-    printf(f"Epoch {current_epoch} / {constants.EPOCHS} - Completed.")
+    printf(f"Epoch {current_epoch} / {runtime_constants.EPOCHS} - Completed.")
     printf(
-        f"Epoch {current_epoch} / {constants.EPOCHS} - Average Training Loss: "
-        + loss_record["train"][-1]
+        f"Epoch {current_epoch} / {runtime_constants.EPOCHS} - Average Training Loss: "
+        + str(loss_record["train"][-1])
     )
     printf(
-        f"Epoch {current_epoch} / {constants.EPOCHS} - Average Validation Loss: "
-        + loss_record["val"][-1]
+        f"Epoch {current_epoch} / {runtime_constants.EPOCHS} - Average Validation Loss: "
+        + str(loss_record["val"][-1])
     )
     printf(
-        f"Epoch {current_epoch} / {constants.EPOCHS} - Average Testing Loss: "
-        + loss_record["test"][-1]
+        f"Epoch {current_epoch} / {runtime_constants.EPOCHS} - Average Testing Loss: "
+        + str(loss_record["test"][-1])
     )
     printf("Saving Model Checkpoint.")
     torch.save(classifier.state_dict(), output_path / "classifier.pth")
@@ -349,3 +370,62 @@ def export_kfold_set(pth: Path, configs: dict) -> None:
                 runtime_constants.HOME_PATH / neg_path / "kfold.txt", "r"
             ) as negative_kfold:
                 outfile.writelines(negative_kfold.readlines()[configs["kfold"]] + "\n")
+
+
+def find_configs_from_log(log_fname: str | Path) -> dict:
+    logfile = open(log_fname, "r")
+    finished_loading = False
+    configs = {}
+
+    while not finished_loading:
+        newline = logfile.readline().replace("\n", "")
+        if "Config" in newline:
+            cf, arg = newline.split(" Config ")[-1].split(": ")
+            if arg == "":
+                configs[cf] = arg
+            else:
+                try:
+                    configs[cf] = ast.literal_eval(arg)
+                except ValueError:
+                    configs[cf] = arg
+                except SyntaxError:
+                    pass
+        else:
+            finished_loading = True
+
+    # for some reason, mypy gives the following error:
+    # Incompatible types in assignment (expression has type "PhysicoChemicalEncoder | Any
+    # | LLMEncoder", target has type "str")
+    configs["encoding-method"] = get_embedding_method(configs)  # type: ignore
+    configs["reducer"] = get_reduction(configs)  # type: ignore
+    return configs
+
+
+def load_last_epoch(custom_configs: dict) -> int:
+    loc = Path.cwd() / custom_configs["output-path"]
+    maxepoch = max([int(i.name.replace("Epoch ", "")) for i in loc.glob("Epoch */")])
+    signature = set(
+        ["classifier.pth", "eval-records.csv", "test-records.csv", "train-records.csv"]
+    )
+    exists = set([i for i in (loc / f"Epoch {maxepoch}").glob("*") if i in signature])
+    return maxepoch - 1 if signature - exists else maxepoch
+
+
+def printf_exceptions_raised(e: Exception) -> None:
+    exc_type, exc_obj, exc_tb = sys.exc_info()
+    printf("Error Encountered: Logging Information", "ERROR")
+    if torch.cuda.is_available():
+        printf(f"Torch Memory Taken: {torch.cuda.memory_allocated()}")
+
+    printf(
+        (
+            (f"Line {exc_tb.tb_lineno} - " if exc_tb is not None else "")
+            + f"{type(e).__name__}: {str(e)}"
+        ),
+        "ERROR",
+    )
+
+
+def close_logger() -> None:
+    assert logger is not None
+    logger.close()

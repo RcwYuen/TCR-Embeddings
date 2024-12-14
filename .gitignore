@@ -8,6 +8,7 @@ data/*/
 */tcrbert-model/
 */tcrbert-tokenizer/
 **/.mypy_cache
+**/.vscode
 
 *.json
 *.safetensors

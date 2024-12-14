@@ -1,10 +1,11 @@
 import sys
 from datetime import datetime
+from pathlib import Path
 
 
 class Logger:
-    def __init__(self, filename: str, opening_mode: str = "w") -> None:
-        self.filename: str = filename
+    def __init__(self, filename: str | Path, opening_mode: str = "w") -> None:
+        self.filename: str | Path = filename
         self.outfile = open(filename, opening_mode)
         self.initialized: bool = True
         self.streams: list = [sys.stdout, self.outfile]

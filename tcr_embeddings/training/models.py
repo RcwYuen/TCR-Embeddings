@@ -4,7 +4,7 @@ import pandas as pd
 import torch
 from sparsemax import Sparsemax
 
-from tcr_embeddings import constants
+from tcr_embeddings import runtime_constants
 from tcr_embeddings.embed.embedder import Embedder
 
 
@@ -29,10 +29,18 @@ class MIClassifier(torch.nn.Module):
 
 def reduced_classifier() -> MIClassifier:
     model = MIClassifier(5)
-    return model.cuda() if torch.cuda.is_available() and constants.USE_CUDA else model
+    return (
+        model.cuda()
+        if torch.cuda.is_available() and runtime_constants.USE_CUDA
+        else model
+    )
 
 
 def ordinary_classifier(encoding_method: Embedder) -> MIClassifier:
     df = pd.read_csv(Path.cwd() / "data/sample.tsv", sep="\t", dtype=str)
     model = MIClassifier(encoding_method.calc_vector_representations(df).shape[1])
-    return model.cuda() if torch.cuda.is_available() and constants.USE_CUDA else model
+    return (
+        model.cuda()
+        if torch.cuda.is_available() and runtime_constants.USE_CUDA
+        else model
+    )
