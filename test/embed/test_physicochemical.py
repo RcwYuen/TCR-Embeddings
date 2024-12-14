@@ -59,7 +59,7 @@ class test_physicochemical(unittest.TestCase):
             test_physicochemical.LS_ALL_PHYSICOEMBEDDERS,
             test_physicochemical.LS_EXPT_EMBEDDED,
         ):
-            ls_embedded: np.ndarray = embedder.calc_vector_representations(
+            ls_embedded: list[float] = embedder.calc_vector_representations(
                 test_physicochemical.DF_SAMPLE_INPUT
             ).tolist()[0]
 
