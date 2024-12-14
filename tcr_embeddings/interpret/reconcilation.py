@@ -4,9 +4,10 @@ from pathlib import Path
 import pandas as pd
 from tqdm.notebook import tqdm
 
-'''
+"""
 This makes sure the kfold used matches what was used in the log file.
-'''
+Do not run if not necessary
+"""
 
 if __name__ == "__main__":
     dct_filename_to_lens = {}
