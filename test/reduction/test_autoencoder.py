@@ -33,7 +33,7 @@ class test_ae(unittest.TestCase):
 
     def test_rejects_invalid_encoding_method(self):
         with self.assertRaises(AssertionError) as err:
-            AutoEncoder(PassThrough, "PassThrough")
+            AutoEncoder(PassThrough, "PassThrough")  # type: ignore
 
         self.assertEqual(
             str(err.exception),
