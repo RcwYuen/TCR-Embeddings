@@ -54,7 +54,9 @@ class PhysicoChemicalEncoder(Embedder):
 
         # Initialize the representation matrix
         rep = torch.zeros(
-            (len(df_tcrs), embedding_tensor.shape[1]), dtype=torch.float32, device=device
+            (len(df_tcrs), embedding_tensor.shape[1]),
+            dtype=torch.float32,
+            device=device,
         )
 
         # Preprocess sequences on the CPU
