@@ -62,7 +62,9 @@ class test_physicochemical(unittest.TestCase):
             # for some reason this said incompatible types in assignment
             ls_embedded: list[float] = embedder.calc_vector_representations(  # type: ignore
                 test_physicochemical.DF_SAMPLE_INPUT
-            ).tolist()[0]
+            ).tolist()[
+                0
+            ]
 
             for e1, e2 in zip(ls_embedded, expt_outcome):
                 self.assertTrue(abs(e1 - e2) < 0.0001)

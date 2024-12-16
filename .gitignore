@@ -12,3 +12,4 @@ data/*/
 **/embed/tcrbert*
 
 *.safetensors
+*.sh

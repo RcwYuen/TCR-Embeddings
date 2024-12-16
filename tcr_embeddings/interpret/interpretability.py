@@ -14,10 +14,7 @@ os.chdir(runtime_constants.HOME_PATH)
 sys.path.append(str(runtime_constants.HOME_PATH))
 
 
-def find_best_epoch(pth: Path) -> tuple[int, float]:
-    """
-    Priority is given to high AUC > high epoch counts to avoid premature fitting.
-    """
+def compute_auc_stats(pth: Path) -> list[tuple[int, float]]:
     ls_aucs: list[tuple[int, float]] = []
 
     for epoch in pth.glob("Epoch */test-records.csv"):
@@ -26,6 +23,19 @@ def find_best_epoch(pth: Path) -> tuple[int, float]:
         auc_score = roc_auc_score(df_test_records["actual"], df_test_records["pred"])
         ls_aucs.append((current_epoch, auc_score))
 
+    return ls_aucs
+
+
+def find_best_epoch(pth: Path) -> tuple[int, float]:
+    return _find_best_epoch(compute_auc_stats(pth))
+
+
+def _find_best_epoch(ls_aucs: list[tuple[int, float]]) -> tuple[int, float]:
+    """
+    Priority is given to high AUC > high epoch counts to avoid premature fitting.
+
+    This is created to help unittests.
+    """
     return max(ls_aucs[::-1], key=lambda x: x[1])
 
 
