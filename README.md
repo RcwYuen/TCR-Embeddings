@@ -53,9 +53,32 @@ To generate consistent K-Fold cross validation sets (such that all training inst
 - For (re)creating Random Embeddings: 
    > `python -m tcr_embeddings.embed.create_random`
 
+>[!NOTE]
+>You cannot use the embedding method if you have not downloaded the embedding method.
+
+### Training a Model
+
+To train a model, run the following:
+> `python -m tcr_embeddings.trainer --config <path/to/your/config>/config.json`
+
+The training logs will be found within your specified output path in `config.json`.
+
+If your training has been paused / terminated in the middle and you wish to resume, run the following:
+
+> `python -m tcr_embeddings.resume --dir path/to/your/resuming_instance`
+
+Inside the output path, you will find the following:
+1. Checkpoints for each epoch, alongside with the training loss csv, validation loss csv and testing loss csv
+2. K-Folds used
+3. Training Logs
+4. Parquet Files of TCRs with non-zero weights, where the repertoire has been correctly classified within the test set.
+
+### Utilities for running in GPU Servers
+
+
 ## CI/CD
 
-To maintain good standards of code and code functionality validation, the following CI/CD procedures must be complied and followed.  Unittests shall cover most edge cases of the problems, and must be fully passed prior to any origin/master branch merge requests.
+To maintain good standards of code, the following CI/CD procedures must be complied and followed.  Unittests must be properly designed and covers edge cases.  CI procedures within the workflow must be fully passed prior to any origin/master branch merge requests.
 
 > `black` > `isort` > `flake8` > `mypy` > `unittest` / `pytest`
 
