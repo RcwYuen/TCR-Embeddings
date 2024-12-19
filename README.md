@@ -7,7 +7,12 @@ Currently, support has been implemented for the following:
 - Physico-chemical Embeddings: Atchley Factors [1], Kidera Factors [2], Amino Acid Properties [3], Random Embeddings (for control)
 - LLM Embeddings: SCEPTR [4], TCR-BERT [5]
 
-The code provides a flexible implementation with datasets, embedding models and hyperparameters to train models and subsequently using scripts to understand the effectiveness of the embeddings.  Should any user wishes to add support to more embedding models permanently, branching & submitting git merge requests are more than welcome, subject to satisfying Continuous-Integration requirements, detailed in subsequently sections.
+The code provides a flexible implementation with datasets, embedding models and hyperparameters to train models and subsequently using scripts to understand the effectiveness of the embeddings.
+
+Should any user wishes to add support to more embedding models permanently, branching & submitting git merge requests are more than welcome, subject to satisfying Continuous-Integration requirements, detailed in subsequently sections.
+
+>[!NOTE]
+>If I have not responded to merge requests after some time, please feel free to [contact me](mailto:r.yuen.20@alumni.ucl.ac.uk).
 
 ## Installation Instructions
 
@@ -17,12 +22,44 @@ The code provides a flexible implementation with datasets, embedding models and 
 4. poetry install
 5. python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
 
+## Usage Instructions
+Default training hyperparameters have been placed under `tcr_embeddings/constants.json`.  You may change the hyperparameters at your discretion.
+
+>[!TIP]
+>You may want to disable cuda for training fairly small models as GPU acceleration may not be beneficial for models with a small amount of parameters.
+
+>[!TIP]
+>Do **not** change `runtime_constants.py`
+
+In your first-ever execution, run the following to generate the configuration file.
+> `python -m tcr_embeddings.trainer --make`
+
+In there, you can change the more frequently changed parameters such as which fold within the k-Fold to run, which embedding method, reduction method, etc.
+
+### Using your own Datasets
+For any dataset, please clean the data such that the following is satisfied:
+1. The data is in a `tsv` file format (you can use ```df.to_csv("<filename>.tsv", sep="\t")```)
+2. The data has columns "TRAV", "TRBV", "CDR3A", "CDR3B".  You may put more columns in there at your discretion but slow down the execution through the data reading process.
+3. Place your data in directory: `data/location`.  You may have multiple directories where the data shares the same label.
+
+To generate consistent K-Fold cross validation sets (such that all training instances uses the same K-Fold), run the following after placing your data in the right location:
+
+> python data/create-kfold.py
+
+### Downloading Embeddings
+
+- For TCR-BERT: 
+   > `python -m tcr_embeddings.embed.download-tcrbert`
+- For (re)creating Random Embeddings: 
+   > `python -m tcr_embeddings.embed.create_random`
+
 ## CI/CD
 
 To maintain good standards of code and code functionality validation, the following CI/CD procedures must be complied and followed.  Unittests shall cover most edge cases of the problems, and must be fully passed prior to any origin/master branch merge requests.
 
-> [!NOTE]
-> black > isort > flake8 > mypy > unittest / pytest
+> `black` > `isort` > `flake8` > `mypy` > `unittest` / `pytest`
+
+Details for CI/CD can be found [here](.github/workflows/ci.yml)
 
 ## References
 
