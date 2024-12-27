@@ -22,8 +22,8 @@ Should any user wishes to add support to more embedding models permanently, bran
 4. poetry install
 5. python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
 
-## Usage Instructions
-Default training hyperparameters have been placed under `tcr_embeddings/constants.json`.  You may change the hyperparameters at your discretion.
+## Usage Instructions (Training Models)
+Default training hyperparameters have been placed under `tcr_embeddings/constants.json`.  You may change the hyperparameters of the training loop at your discretion.
 
 >[!TIP]
 >You may want to disable cuda for training fairly small models as GPU acceleration may not be beneficial for models with a small amount of parameters.
@@ -34,17 +34,20 @@ Default training hyperparameters have been placed under `tcr_embeddings/constant
 In your first-ever execution, run the following to generate the configuration file.
 > `python -m tcr_embeddings.trainer --make`
 
-In there, you can change the more frequently changed parameters such as which fold within the k-Fold to run, which embedding method, reduction method, etc.
+This generates a `config.json` on your local directory.  In that file, you can change the more frequently changed parameters such as which fold within the k-Fold to run, which embedding method, reduction method, etc.
 
 ### Using your own Datasets
 For any dataset, please clean the data such that the following is satisfied:
-1. The data is in a `tsv` file format (you can use ```df.to_csv("<filename>.tsv", sep="\t")```)
-2. The data has columns "TRAV", "TRBV", "CDR3A", "CDR3B".  You may put more columns in there at your discretion but slow down the execution through the data reading process.
+1. The data is in a `tsv` file format, the only difference to a csv is that a tsv uses tabs to seperate columns where csvs use commas.
+2. The data has columns "TRAV", "TRBV", "CDR3A", "CDR3B".  You may put more columns in there at your discretion but this will slow down the execution through the data reading process.  Two sample files have been placed [here](data/sample.tsv) and [here](data/full.tsv).
 3. Place your data in directory: `data/location`.  You may have multiple directories where the data shares the same label.
+
+>[!TIP]
+>To export your file to a csv, you can use ```df.to_csv("<filename>.tsv", sep="\t")```.
 
 To generate consistent K-Fold cross validation sets (such that all training instances uses the same K-Fold), run the following after placing your data in the right location:
 
-> python data/create-kfold.py
+> `python -m data.create-kfold`
 
 ### Downloading Embeddings
 
@@ -56,12 +59,12 @@ To generate consistent K-Fold cross validation sets (such that all training inst
 >[!NOTE]
 >You cannot use the embedding method if you have not downloaded the embedding method.
 
-### Training a Model
+### Training your Model
 
 To train a model, run the following:
 > `python -m tcr_embeddings.trainer --config <path/to/your/config>/config.json`
 
-The training logs will be found within your specified output path in `config.json`.
+The training logs will be found within your specified output path in `config.json`, where you can generate the `config.json` file with `python -m tcr_embeddings.trainer --make`.
 
 If your training has been paused / terminated in the middle and you wish to resume, run the following:
 
@@ -73,8 +76,15 @@ Inside the output path, you will find the following:
 3. Training Logs
 4. Parquet Files of TCRs with non-zero weights, where the repertoire has been correctly classified within the test set.
 
-### Utilities for running in GPU Servers
+## Usage Instructions (Analysis of Results)
 
+We provide a few scripts to analyse your results, where they are placed under `analysis`.  The Jupyter notebooks provides already comprehensive description on what they are doing, however this is an overview:
+
+* [interpretability-analysis.ipynb](analysis/interpretability-analysis.ipynb)
+
+* [kfold-stats.ipynb](analysis/kfold-stats.ipynb)
+
+* [training-stats-combined.ipynb](analysis/training-stats-combined.ipynb)
 
 ## CI/CD
 
