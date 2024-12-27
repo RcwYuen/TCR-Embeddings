@@ -1,1 +1,0 @@
-Used Epoch: 68 with AUC 0.8480392156862745
