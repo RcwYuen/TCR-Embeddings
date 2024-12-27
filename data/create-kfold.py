@@ -11,10 +11,10 @@ def create_folds(files, k=5):
     return [files[i : i + fold_size] for i in range(0, len(files), fold_size)]
 
 
-dir = Path(__file__).resolve().parent
+location = Path(__file__).resolve().parent
 
 k = 5
-to_create = [dir / "tcvhcw/cleaned", dir / "Tx/cleaned"]
+to_create = [location / "testData/true", location / "testData/false"]
 
 for path in to_create:
     if not path.exists():
@@ -23,6 +23,4 @@ for path in to_create:
     folds = create_folds(allfiles, k=k)
     with open(path / "kfold.txt", "w") as f:
         for fold in folds:
-            f.writelines(
-                "<>".join([str(i.relative_to(Path.cwd())) for i in fold]) + "\n"
-            )
+            f.writelines("<>".join([str(i.name) for i in fold]) + "\n")
