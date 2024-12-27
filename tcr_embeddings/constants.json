@@ -1,15 +1,15 @@
 {
     "PATH_POSITIVE_CLASS": [
-        "data/Tx/cleaned"
+        "data/testData/true"
     ],
     "PATH_NEGATIVE_CLASS": [
-        "data/tcvhcw/cleaned"
+        "data/testData/false"
     ],
     "EPOCHS": 100,
-    "LR": 0.01,
+    "LR": 0.025,
     "TRAIN_TEST_SPLIT": 1,
     "ACCUMMULATION": 4,
-    "L2_PENALTY": 0.1,
+    "L2_PENALTY": 0.001,
     "RAND_SEED": 42,
     "USE_CUDA": true
 }

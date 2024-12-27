@@ -82,7 +82,7 @@ class Patients(torch.utils.data.Dataset):
 
             with open(Path.cwd() / directory / "kfold.txt", "r") as f:
                 set_kfold = {
-                    Path.cwd() / i
+                    Path.cwd() / directory / i
                     for i in f.readlines()[self.__kfold].replace("\n", "").split("<>")
                 }
 

@@ -1,5 +1,4 @@
 import json
-import os
 from pathlib import Path
 
 import pandas as pd
@@ -21,11 +20,7 @@ L2_PENALTY: float
 RAND_SEED: int
 USE_CUDA: bool
 
-with open(
-    HOME_PATH / "tcr_embeddings/test_constants.json"
-    if os.getenv("UNITTEST") == "1"
-    else HOME_PATH / "tcr_embeddings/constants.json"
-) as f:
+with open(HOME_PATH / "tcr_embeddings/constants.json") as f:
     _temp = json.load(f)
     globals().update(_temp)
     __all__ = list(_temp.keys())

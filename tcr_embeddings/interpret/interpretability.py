@@ -1,5 +1,6 @@
 import os
 import sys
+import warnings
 from pathlib import Path
 
 import pandas as pd
@@ -42,7 +43,12 @@ def _find_best_epoch(ls_aucs: list[tuple[int, float]]) -> tuple[int, float]:
 def load_trained_model(
     model: torch.nn.Module, best_epoch: int, outpath: Path
 ) -> torch.nn.Module:
-    model.load_state_dict(torch.load(outpath / f"Epoch {best_epoch}/classifier.pth"))
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        model.load_state_dict(
+            torch.load(outpath / f"Epoch {best_epoch}/classifier.pth")
+        )
+
     for param in model.parameters():
         param.requires_grad = False
     return model
@@ -71,21 +77,20 @@ def run(
         df: pd.DataFrame
         for idx, (label, fname, df) in enumerate(dataset):  # type: ignore
             utils.printf(f"Processing File {idx} / {len(dataset)}.  True Label {label}")
-            pred = best_model(utils.calculate_embeddings(df, configs))
-            utils.printf(f"File {idx} / {len(dataset)}: Predicted Value: {pred.item()}")
+            pred = best_model(utils.calculate_embeddings(df, configs)).item()
+            utils.printf(f"File {idx} / {len(dataset)}: Predicted Value: {pred}")
 
             dct_interpretability_record["filename"].append(fname)
             dct_interpretability_record["true"].append(label)
             dct_interpretability_record["prediction"].append(pred)
 
-            if round(pred) == label:
+            if int(pred > 0.5) == label:
                 utils.printf(
                     f"File {idx} / {len(dataset)}: Correct Prediction, finding non-zero TCRs"
                 )
-
                 ls_nonzero_idx = torch.nonzero(best_model.last_weights)[:, 0]
                 ls_ws = best_model.last_weights[ls_nonzero_idx][:, 0].tolist()
-                df_nonzero_idx = df.iloc[ls_nonzero_idx.tolist()]
+                df_nonzero_idx = df.iloc[ls_nonzero_idx.tolist()].copy()
                 df_nonzero_idx["assigned_weights"] = ls_ws
                 df_nonzero_idx.to_parquet(outpath / fname.name.replace(".tsv", ".pq"))
 

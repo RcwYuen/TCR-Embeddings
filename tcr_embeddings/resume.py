@@ -1,4 +1,5 @@
 import copy
+import gc
 import os
 import sys
 from pathlib import Path
@@ -107,6 +108,11 @@ if __name__ == "__main__":
             model=copy.deepcopy(classifier),
             outpath=OUTPUT_PATH,
         )
+
+        utils.printf("All Done, cleaning up", "INFO")
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
 
     except KeyboardInterrupt:
         utils.printf("Interrupted", "INFO")

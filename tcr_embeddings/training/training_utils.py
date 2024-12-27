@@ -357,15 +357,15 @@ def summarise_epoch(
 
 
 def export_kfold_set(pth: Path, configs: dict) -> None:
-    for i, pos_path in configs["positive-path"]:
-        with open(pth / "positive-kfold-set.txt", "w") as outfile:
+    for i, pos_path in enumerate(runtime_constants.PATH_POSITIVE_CLASS):
+        with open(pth / f"positive-kfold-{i}.txt", "w") as outfile:
             with open(
                 runtime_constants.HOME_PATH / pos_path / "kfold.txt", "r"
             ) as positive_kfold:
                 outfile.writelines(positive_kfold.readlines()[configs["kfold"]] + "\n")
 
-    for i, neg_path in configs["negative-path"]:
-        with open(pth / "negative-kfold.txt", "w") as outfile:
+    for i, neg_path in enumerate(runtime_constants.PATH_NEGATIVE_CLASS):
+        with open(pth / f"negative-kfold-{i}.txt", "w") as outfile:
             with open(
                 runtime_constants.HOME_PATH / neg_path / "kfold.txt", "r"
             ) as negative_kfold:
@@ -427,5 +427,5 @@ def printf_exceptions_raised(e: Exception) -> None:
 
 
 def close_logger() -> None:
-    assert logger is not None
-    logger.close()
+    if isinstance(logger, Logger):
+        logger.close()
