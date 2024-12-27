@@ -1,1 +1,0 @@
-Used Epoch: 6 with AUC 0.9019607843137255

@@ -1,1 +1,0 @@
-Used Epoch: 92 with AUC 0.9607843137254901

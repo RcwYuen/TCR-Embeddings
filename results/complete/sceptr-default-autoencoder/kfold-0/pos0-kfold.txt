@@ -1,1 +1,0 @@
-data\Tx\cleaned\LTX0110.tsv<>data\Tx\cleaned\LTX0031.tsv<>data\Tx\cleaned\LTX0203.tsv<>data\Tx\cleaned\LTX0092.tsv<>data\Tx\cleaned\LTX0021.tsv<>data\Tx\cleaned\LTX0144.tsv<>data\Tx\cleaned\LTX0103.tsv<>data\Tx\cleaned\LTX0032.tsv<>data\Tx\cleaned\LTX0111.tsv<>data\Tx\cleaned\LTX0074.tsv<>data\Tx\cleaned\LTX0348.tsv<>data\Tx\cleaned\LTX0080.tsv

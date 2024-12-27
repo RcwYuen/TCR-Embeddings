@@ -10,7 +10,7 @@ data/*/
 **/.mypy_cache
 **/.vscode
 **/embed/tcrbert*
-results/testing
+results
 
 *.safetensors
 *.sh

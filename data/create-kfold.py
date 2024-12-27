@@ -14,7 +14,7 @@ def create_folds(files, k=5):
 location = Path(__file__).resolve().parent
 
 k = 5
-to_create = [location / "testData/true", location / "testData/false"]
+to_create = [location / "tcvhcw/cleaned", location / "Tx/cleaned"]
 
 for path in to_create:
     if not path.exists():

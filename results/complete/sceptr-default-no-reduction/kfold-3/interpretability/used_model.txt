@@ -1,1 +1,0 @@
-Used Epoch: 44 with AUC 0.9019607843137255

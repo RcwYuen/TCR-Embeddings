@@ -1,7 +1,0 @@
-Embedding Method,Reduction Method,Beta Chain to Alpha Chain Ratio (True Positives),Beta Chain to Alpha Chain Ratio (True Negatives)
-sceptr-tiny,no-reduction,0.70843,0.36564
-kidera,no-reduction,0.77743,0.61808
-sceptr-default,no-reduction,1.46548,1.37375
-aaprop,no-reduction,1.55272,0.90935
-rand,no-reduction,1.67592,3.0964
-atchley,no-reduction,1.89992,1.67633

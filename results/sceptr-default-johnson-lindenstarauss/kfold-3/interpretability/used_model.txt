@@ -1,1 +1,0 @@
-Used Epoch: 99 with AUC 0.47058823529411764
