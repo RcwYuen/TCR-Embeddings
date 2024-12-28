@@ -11,5 +11,5 @@
     "ACCUMMULATION": 4,
     "L2_PENALTY": 0.001,
     "RAND_SEED": 42,
-    "USE_CUDA": false
+    "USE_CUDA": true
 }

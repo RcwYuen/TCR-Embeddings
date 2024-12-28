@@ -65,8 +65,8 @@ jobs:
 
       - name: Check - Unit Tests [unittest]
         run: |
-          export UNITTEST=1
-          source $HOME/miniconda/etc/profile.d/conda.sh  # Ensure conda is activated
-          conda activate tcr_embeddings  # Activate the correct conda environment
+          python -m pip list
+          python -m test.temporarily-change-constants
           poetry run python -m unittest discover -s test -p "*test*.py" -v
+          python -m test.revert-default-constants
         if: always()
