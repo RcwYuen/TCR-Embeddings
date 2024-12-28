@@ -45,6 +45,7 @@ class test_train_utils(unittest.TestCase):
     def test_follows_runtime_constants_use_cuda(self):
         from tcr_embeddings import runtime_constants  # type: ignore
 
+        runtime_constants.USE_CUDA = True
         if torch.cuda.is_available():
             tensor = utils.calculate_embeddings(
                 runtime_constants.DF_SAMPLE, configs=utils.load_configs({})

@@ -20,7 +20,7 @@ L2_PENALTY: float
 RAND_SEED: int
 USE_CUDA: bool
 
-with open(HOME_PATH / "tcr_embeddings/constants.json") as f:
+with open(HOME_PATH / "tcr_embeddings/constants.json", "r") as f:
     _temp = json.load(f)
     globals().update(_temp)
     __all__ = list(_temp.keys())

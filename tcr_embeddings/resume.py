@@ -100,6 +100,7 @@ if __name__ == "__main__":
             utils.summarise_epoch(e, loss_record, classifier, outpath)
 
         utils.export_kfold_set(OUTPUT_PATH, configs)
+        utils.export_constants(OUTPUT_PATH)
 
         utils.printf("Finding interpretability scripts", "INFO")
         interpretability.run(

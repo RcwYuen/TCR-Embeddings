@@ -429,3 +429,11 @@ def printf_exceptions_raised(e: Exception) -> None:
 def close_logger() -> None:
     if isinstance(logger, Logger):
         logger.close()
+
+
+def export_constants(copy_to: Path) -> None:
+    with open(runtime_constants.HOME_PATH / "tcr_embeddings/constants.json", "r") as f:
+        constants = json.load(f)
+
+    with open(copy_to, "w") as f:
+        json.dump(constants, f)
