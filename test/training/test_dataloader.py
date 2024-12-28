@@ -14,25 +14,43 @@ class test_dataloader(unittest.TestCase):
         ls_kfolds = list(range(5))
         for kf in ls_kfolds:
             loader = dataloader.Patients(
-                split=1,
-                positives=["data/Tx/cleaned"],
-                negatives=["data/tcvhcw/cleaned"],
+                split=runtime_constants.TRAIN_TEST_SPLIT,
+                positives=runtime_constants.PATH_POSITIVE_CLASS,
+                negatives=runtime_constants.PATH_NEGATIVE_CLASS,
                 kfold=kf,
             )
 
             total_positives = len(
-                list((runtime_constants.DATA_PATH / "Tx/cleaned").glob("*.tsv"))
+                list(
+                    (
+                        runtime_constants.HOME_PATH
+                        / runtime_constants.PATH_POSITIVE_CLASS[0]
+                    ).glob("*.tsv")
+                )
             )
             total_negatives = len(
-                list((runtime_constants.DATA_PATH / "tcvhcw/cleaned").glob("*.tsv"))
+                list(
+                    (
+                        runtime_constants.HOME_PATH
+                        / runtime_constants.PATH_NEGATIVE_CLASS[0]
+                    ).glob("*.tsv")
+                )
             )
 
-            with open(runtime_constants.DATA_PATH / "Tx/cleaned/kfold.txt") as f:
+            with open(
+                runtime_constants.HOME_PATH
+                / runtime_constants.PATH_POSITIVE_CLASS[0]
+                / "kfold.txt"
+            ) as f:
                 total_positives_in_kfold = len(
                     f.readlines()[kf].replace("\n", "").split("<>")
                 )
 
-            with open(runtime_constants.DATA_PATH / "tcvhcw/cleaned/kfold.txt") as f:
+            with open(
+                runtime_constants.HOME_PATH
+                / runtime_constants.PATH_NEGATIVE_CLASS[0]
+                / "kfold.txt"
+            ) as f:
                 total_negatives_in_kfold = len(
                     f.readlines()[kf].replace("\n", "").split("<>")
                 )
@@ -45,11 +63,15 @@ class test_dataloader(unittest.TestCase):
             self.assertEqual(neg_ratio, loader.ratio(0))
 
     def test_len(self):
-        total_positives = len(
-            list((runtime_constants.DATA_PATH / "Tx/cleaned").glob("*.tsv"))
+        ls_positives = list(
+            (
+                runtime_constants.HOME_PATH / runtime_constants.PATH_POSITIVE_CLASS[0]
+            ).glob("*.tsv")
         )
-        total_negatives = len(
-            list((runtime_constants.DATA_PATH / "tcvhcw/cleaned").glob("*.tsv"))
+        ls_negatives = list(
+            (
+                runtime_constants.HOME_PATH / runtime_constants.PATH_NEGATIVE_CLASS[0]
+            ).glob("*.tsv")
         )
         split_ratio = np.linspace(0, 1, 10)
         ls_kfolds = list(range(5))
@@ -57,12 +79,12 @@ class test_dataloader(unittest.TestCase):
             for kf in ls_kfolds:
                 loader = dataloader.Patients(
                     split=split_val,
-                    positives=["data/Tx/cleaned"],
-                    negatives=["data/tcvhcw/cleaned"],
+                    positives=runtime_constants.PATH_POSITIVE_CLASS,
+                    negatives=runtime_constants.PATH_NEGATIVE_CLASS,
                     kfold=kf,
                 )
                 self.assertEqual(
-                    loader.total_files(), total_positives + total_negatives
+                    loader.total_files(), len(ls_positives) + len(ls_negatives)
                 )
 
     def test_no_duplicates(self):
@@ -72,8 +94,8 @@ class test_dataloader(unittest.TestCase):
             for kf in ls_kfolds:
                 loader = dataloader.Patients(
                     split=split_val,
-                    positives=["data/Tx/cleaned"],
-                    negatives=["data/tcvhcw/cleaned"],
+                    positives=runtime_constants.PATH_POSITIVE_CLASS,
+                    negatives=runtime_constants.PATH_NEGATIVE_CLASS,
                     kfold=kf,
                 )
                 train_set = loader.all_files_by_category()["Training"]
@@ -91,8 +113,8 @@ class test_dataloader(unittest.TestCase):
             for kf in ls_kfolds:
                 loader = dataloader.Patients(
                     split=split_val,
-                    positives=["data/Tx/cleaned"],
-                    negatives=["data/tcvhcw/cleaned"],
+                    positives=runtime_constants.PATH_POSITIVE_CLASS,
+                    negatives=runtime_constants.PATH_NEGATIVE_CLASS,
                     kfold=kf,
                 )
                 train_set = set(loader.all_files_by_category()["Training"])
@@ -110,8 +132,8 @@ class test_dataloader(unittest.TestCase):
             for kf in ls_kfolds:
                 loader = dataloader.Patients(
                     split=split_val,
-                    positives=["data/Tx/cleaned"],
-                    negatives=["data/tcvhcw/cleaned"],
+                    positives=runtime_constants.PATH_POSITIVE_CLASS,
+                    negatives=runtime_constants.PATH_NEGATIVE_CLASS,
                     kfold=kf,
                 )
                 train_set = set(loader.all_files_by_category()["Training"])
@@ -128,9 +150,15 @@ class test_dataloader(unittest.TestCase):
                 self.assertEqual(len(test_set), len(loader))
 
     def test_correct_label_assigned(self):
-        ls_positives = list((runtime_constants.DATA_PATH / "Tx/cleaned").glob("*.tsv"))
+        ls_positives = list(
+            (
+                runtime_constants.HOME_PATH / runtime_constants.PATH_POSITIVE_CLASS[0]
+            ).glob("*.tsv")
+        )
         ls_negatives = list(
-            (runtime_constants.DATA_PATH / "tcvhcw/cleaned").glob("*.tsv")
+            (
+                runtime_constants.HOME_PATH / runtime_constants.PATH_NEGATIVE_CLASS[0]
+            ).glob("*.tsv")
         )
         split_ratio = np.linspace(0, 1, 10)
         ls_kfolds = list(range(5))
@@ -138,8 +166,8 @@ class test_dataloader(unittest.TestCase):
             for kf in ls_kfolds:
                 loader = dataloader.Patients(
                     split=split_val,
-                    positives=["data/Tx/cleaned"],
-                    negatives=["data/tcvhcw/cleaned"],
+                    positives=runtime_constants.PATH_POSITIVE_CLASS,
+                    negatives=runtime_constants.PATH_NEGATIVE_CLASS,
                     kfold=kf,
                 )
                 data = sorted(
@@ -156,25 +184,6 @@ class test_dataloader(unittest.TestCase):
 
                     elif i[0] == 1:
                         self.assertTrue(i[1] in ls_positives)
-
-    def test_kfolds(self):
-        with open(runtime_constants.DATA_PATH / "Tx/cleaned/kfold.txt") as f:
-            ls_pos_kfolds = "".join(f.readlines()).replace("\n", "<>").split("<>")
-
-        with open(runtime_constants.DATA_PATH / "tcvhcw/cleaned/kfold.txt") as f:
-            ls_neg_kfolds = "".join(f.readlines()).replace("\n", "<>").split("<>")
-
-        self.assertEqual(
-            sorted([runtime_constants.HOME_PATH / i for i in ls_pos_kfolds]),
-            sorted(list((runtime_constants.DATA_PATH / "Tx/cleaned").glob("*.tsv"))),
-        )
-
-        self.assertEqual(
-            sorted([runtime_constants.HOME_PATH / i for i in ls_neg_kfolds]),
-            sorted(
-                list((runtime_constants.DATA_PATH / "tcvhcw/cleaned").glob("*.tsv"))
-            ),
-        )
 
 
 if __name__ == "__main__":

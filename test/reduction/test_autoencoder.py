@@ -4,7 +4,6 @@ import numpy as np
 import torch
 from sceptr import variant
 
-from tcr_embeddings.embed.llm import tcrbert
 from tcr_embeddings.embed.physicochemical import aaprop, atchley, kidera, rand
 from tcr_embeddings.reduction.reduction import AutoEncoder
 
