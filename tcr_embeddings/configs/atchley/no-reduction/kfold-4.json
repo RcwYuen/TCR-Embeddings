@@ -1,0 +1,6 @@
+{
+    "output-path": "results/atchley-no-reduction/kfold-4",
+    "kfold": 4,
+    "encoding": "atchley",
+    "reduction": "no-reduction"
+}

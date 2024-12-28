@@ -1,0 +1,6 @@
+{
+    "output-path": "results/atchley-autoencoder/kfold-4",
+    "kfold": 4,
+    "encoding": "atchley",
+    "reduction": "autoencoder"
+}

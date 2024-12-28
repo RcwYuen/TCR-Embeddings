@@ -1,0 +1,6 @@
+{
+    "output-path": "results/sceptr-default-no-reduction/kfold-2",
+    "kfold": 2,
+    "encoding": "sceptr-default",
+    "reduction": "no-reduction"
+}

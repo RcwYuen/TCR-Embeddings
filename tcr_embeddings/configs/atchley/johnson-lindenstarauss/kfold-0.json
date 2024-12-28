@@ -1,0 +1,6 @@
+{
+    "output-path": "results/atchley-johnson-lindenstarauss/kfold-0",
+    "kfold": 0,
+    "encoding": "atchley",
+    "reduction": "johnson-lindenstarauss"
+}

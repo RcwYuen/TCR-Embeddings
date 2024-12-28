@@ -1,0 +1,6 @@
+{
+    "output-path": "results/aaprop-johnson-lindenstarauss/kfold-3",
+    "kfold": 3,
+    "encoding": "aaprop",
+    "reduction": "johnson-lindenstarauss"
+}

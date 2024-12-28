@@ -1,0 +1,6 @@
+{
+    "output-path": "results/kidera-johnson-lindenstarauss/kfold-4",
+    "kfold": 4,
+    "encoding": "kidera",
+    "reduction": "johnson-lindenstarauss"
+}

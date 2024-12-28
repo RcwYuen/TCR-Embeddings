@@ -1,0 +1,6 @@
+{
+    "output-path": "results/sceptr-default-johnson-lindenstarauss/kfold-4",
+    "kfold": 4,
+    "encoding": "sceptr-default",
+    "reduction": "johnson-lindenstarauss"
+}

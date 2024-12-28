@@ -1,0 +1,6 @@
+{
+    "output-path": "results/sceptr-default-autoencoder/kfold-3",
+    "kfold": 3,
+    "encoding": "sceptr-default",
+    "reduction": "autoencoder"
+}

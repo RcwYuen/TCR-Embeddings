@@ -1,0 +1,6 @@
+{
+    "output-path": "results/rand-johnson-lindenstarauss/kfold-2",
+    "kfold": 2,
+    "encoding": "rand",
+    "reduction": "johnson-lindenstarauss"
+}

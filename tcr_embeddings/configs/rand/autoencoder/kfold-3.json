@@ -1,0 +1,6 @@
+{
+    "output-path": "results/rand-autoencoder/kfold-3",
+    "kfold": 3,
+    "encoding": "rand",
+    "reduction": "autoencoder"
+}

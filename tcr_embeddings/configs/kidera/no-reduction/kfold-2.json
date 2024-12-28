@@ -1,0 +1,6 @@
+{
+    "output-path": "results/kidera-no-reduction/kfold-2",
+    "kfold": 2,
+    "encoding": "kidera",
+    "reduction": "no-reduction"
+}

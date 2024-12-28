@@ -1,0 +1,6 @@
+{
+    "output-path": "results/aaprop-autoencoder/kfold-1",
+    "kfold": 1,
+    "encoding": "aaprop",
+    "reduction": "autoencoder"
+}

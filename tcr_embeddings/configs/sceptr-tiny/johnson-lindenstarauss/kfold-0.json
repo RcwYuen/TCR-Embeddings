@@ -1,0 +1,6 @@
+{
+    "output-path": "results/sceptr-tiny-johnson-lindenstarauss/kfold-0",
+    "kfold": 0,
+    "encoding": "sceptr-tiny",
+    "reduction": "johnson-lindenstarauss"
+}

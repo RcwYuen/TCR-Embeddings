@@ -1,0 +1,6 @@
+{
+    "output-path": "results/sceptr-tiny-autoencoder/kfold-2",
+    "kfold": 2,
+    "encoding": "sceptr-tiny",
+    "reduction": "autoencoder"
+}
