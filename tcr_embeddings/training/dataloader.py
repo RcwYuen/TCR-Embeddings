@@ -5,15 +5,14 @@ import numpy as np
 import pandas as pd
 import torch
 from pandas import DataFrame
-from virtualenv.config.convert import NoneType
 
 
 class Patients(torch.utils.data.Dataset):
     def __init__(
         self,
         split: float = 0.8,
-        positives: list | NoneType = None,
-        negatives: list | NoneType = None,
+        positives: list | None = None,
+        negatives: list | None = None,
         kfold: int = 0,
     ) -> None:
         super(Patients, self).__init__()

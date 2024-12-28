@@ -19,7 +19,7 @@ class test_ae(unittest.TestCase):
         (aaprop(), "aaprop"),
         (rand(), "rand"),
         (kidera(), "kidera"),
-        (tcrbert(), "tcrbert"),
+        # (tcrbert(), "tcrbert"),  # let's not test this due to GitHub constaints
         (variant.default(), "sceptr-default"),
         (variant.tiny(), "sceptr-tiny"),
     ]
