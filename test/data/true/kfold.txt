@@ -1,3 +1,5 @@
 LTX0001.tsv
 LTX0013.tsv
+LTX0002.tsv
+LTX0003.tsv
 LTX0015.tsv
