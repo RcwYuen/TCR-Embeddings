@@ -40,7 +40,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install poetry
           poetry install
-          python -m pip install numpy pandas
+          python -m pip install numpy pandas virtualenv
 
       - name: Setup - CI/CD Packages
         run: |
