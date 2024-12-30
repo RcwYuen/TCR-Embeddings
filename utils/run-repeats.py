@@ -1,7 +1,6 @@
-import subprocess
 import argparse
 import os
-
+import subprocess
 
 LS_VALID_REDUCTION = ["no-reduction", "johnson-lindenstarauss", "autoencoder"]
 
