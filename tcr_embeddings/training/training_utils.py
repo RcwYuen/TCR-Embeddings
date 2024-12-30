@@ -124,7 +124,10 @@ def get_reduction(config: dict) -> JohnsonLindenstarauss | AutoEncoder | NoReduc
 def make_directory_where_necessary(directory: Path) -> Path:
     if not os.path.exists(directory):
         if make_directory_where_necessary(directory.parent):
-            os.mkdir(directory)
+            try:
+                os.mkdir(directory)
+            except FileExistsError:
+                pass
     return directory
 
 

@@ -35,8 +35,8 @@ for p in dirs.glob("*/kfold-*"):
         status = "Testing"
 
     outstrs.append(
-        f"{str(p.relative_to(dirs)):40}  |  Current Epoch {curepoch:3}  |  Done: {done:5}  |  "
-        + "Status: {status:8}  |  Stale: {stale} mins"
+        f"{str(p.relative_to(dirs)):60}  |  Current Epoch {curepoch:3}  |  Done: {done:5}  |  "
+        + f"Status: {status:8}  |  Stale: {stale} mins"
     )
 
 print("\n".join(sorted(outstrs)))

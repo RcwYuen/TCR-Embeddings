@@ -2,15 +2,21 @@ import glob
 import zipfile
 from pathlib import Path
 
-dirs = Path(__file__).resolve().parent
+ls_paths = [
+    "tcr_embeddings/",
+    "data/tcvhcw/cleaned/",
+    "data/Tx/cleaned/",
+    "utils/",
+    "data/sample.tsv",
+    "data/full.tsv",
+]
+ls_files = ["poetry.lock", "pyproject.toml"]
 
-paths = ["embed/", "reduction/"]
+files: list = sum(
+    [list(glob.glob(path + "**", recursive=True)) for path in ls_paths], ls_files
+)
 
-files: list = []
-for path in paths:
-    files = files + list(glob.glob(path + "**", recursive=True))
-
-with zipfile.ZipFile(dirs / "upload.zip", "w") as zipf:
+with zipfile.ZipFile(Path.cwd() / "upload.zip", "w") as zipf:
     for f in files:
         print(f"Zipping {f}")
         zipf.write(f)
