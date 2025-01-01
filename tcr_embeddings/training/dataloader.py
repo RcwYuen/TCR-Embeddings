@@ -27,6 +27,7 @@ class Patients(torch.utils.data.Dataset):
         self.__negatives: List[str] = negatives
         self.__split: float = split
         self.__kfold: int = kfold
+        self._ext: str = self._get_ext()
 
         self.__training_data: list = []
         self.__validation_data: list = []
@@ -65,19 +66,43 @@ class Patients(torch.utils.data.Dataset):
             "Testing": self.__testing_data,
         }
 
+    def get_ext(self) -> str:
+        return self._ext
+
     def __len__(self) -> int:
         return len(self.__data[self.__mode])
+
+    def _open_file(self, fname: str) -> pd.DataFrame:
+        match self._ext:
+            case ".tsv":
+                return pd.read_csv(fname, sep="\t", dtype=str)
+
+            case ".pq":
+                return pd.read_parquet(fname)
+
+            case _:
+                raise ValueError("File Extension not supported.")
+
+    def _get_ext(self):
+        set_exts: set = set()
+        for pth in self.__positives + self.__negatives:
+            set_exts = set_exts.union(
+                set(i.suffix for i in (Path.cwd() / pth).glob("*"))
+            )
+        ls_exts: list = [i for i in set_exts if i != ".txt"]
+        assert len(ls_exts) == 1, "Expected only 1 file type within directory"
+        return ls_exts[0]
 
     def __getitem__(self, idx: int) -> list[DataFrame | Any]:
         label, fname = self.__data[self.__mode][idx]
         if self.__getfname:
-            return [label, fname, pd.read_csv(fname, sep="\t", dtype=str)]
+            return [label, fname, self._open_file(fname)]
         else:
-            return [label, pd.read_csv(fname, sep="\t", dtype=str)]
+            return [label, self._open_file(fname)]
 
     def __load_kfold(self, directories: list, label: int) -> None:
         for directory in directories:
-            set_tsvs = set((Path.cwd() / directory).glob("*.tsv"))
+            set_files = set((Path.cwd() / directory).glob("*" + self._ext))
 
             with open(Path.cwd() / directory / "kfold.txt", "r") as f:
                 set_kfold = {
@@ -85,7 +110,7 @@ class Patients(torch.utils.data.Dataset):
                     for i in f.readlines()[self.__kfold].replace("\n", "").split("<>")
                 }
 
-            ls_tsvs = list(set_tsvs - set_kfold)
+            ls_tsvs = list(set_files - set_kfold)
 
             ls_train_idx = np.random.choice(
                 np.arange(len(ls_tsvs)),

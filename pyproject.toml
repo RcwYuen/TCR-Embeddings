@@ -51,6 +51,10 @@ filelock = "3.16.1"
 intel-cmplr-lib-ur = "2025.0.3"
 intel-openmp = "2025.0.3"
 
+[[tool.poetry.source]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cu124"
+secondary = true
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.13.0"

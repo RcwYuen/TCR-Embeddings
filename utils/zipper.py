@@ -6,6 +6,8 @@ ls_paths = [
     "tcr_embeddings/",
     "data/tcvhcw/cleaned/",
     "data/Tx/cleaned/",
+    "data/tcvhcw/embedded/",
+    "data/Tx/embedded/",
     "utils/",
     "data/sample.tsv",
     "data/full.tsv",

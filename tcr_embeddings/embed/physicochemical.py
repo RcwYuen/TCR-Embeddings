@@ -26,7 +26,7 @@ class PhysicoChemicalEncoder(Embedder):
         )
         self.embedding_tensor = (
             self.embedding_tensor.cuda()
-            if torch.cuda.is_available()
+            if torch.cuda.is_available() and runtime_constants.USE_CUDA
             else self.embedding_tensor
         )
 
@@ -41,7 +41,11 @@ class PhysicoChemicalEncoder(Embedder):
     def calc_vector_representations(
         self, df: pd.DataFrame, *args, **kwargs
     ) -> np.ndarray:
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        device = torch.device(
+            "cuda"
+            if torch.cuda.is_available() and runtime_constants.USE_CUDA
+            else "cpu"
+        )
 
         # The embedding tensor is already moved to GPU in __init__
         embedding_tensor = self.embedding_tensor

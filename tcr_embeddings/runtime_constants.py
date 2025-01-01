@@ -9,6 +9,16 @@ DATA_PATH: Path = Path(__file__).resolve().parent.parent / "data"
 CRITERION: torch.nn.Module = torch.nn.BCELoss()
 DF_SAMPLE: pd.DataFrame = pd.read_csv(DATA_PATH / "sample.tsv", sep="\t")
 DF_FULL: pd.DataFrame = pd.read_csv(DATA_PATH / "full.tsv", sep="\t")
+LS_VALID_ENCODING: list[str] = [
+    "atchley",
+    "kidera",
+    "rand",
+    "aaprop",
+    "tcrbert",
+    "sceptr-default",
+    "sceptr-tiny",
+]
+PRE_EMBED_PATH: str = "embedded"
 
 PATH_POSITIVE_CLASS: list
 PATH_NEGATIVE_CLASS: list

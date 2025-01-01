@@ -204,8 +204,12 @@ def check_if_only_create(parser: argparse.Namespace) -> None:
         quit()
 
 
-def calculate_embeddings(df: pd.DataFrame, configs: dict) -> torch.Tensor:
-    embeddings = configs["encoding-method"].calc_vector_representations(df)
+def calculate_embeddings(df: pd.DataFrame, configs: dict, ext: str) -> torch.Tensor:
+    embeddings = (
+        configs["encoding-method"].calc_vector_representations(df)
+        if ext != ".pq"
+        else df.values
+    )
     embeddings = configs["reducer"].reduce(embeddings)
     embeddings = torch.from_numpy(embeddings).to(torch.float32)
     return (
@@ -256,7 +260,7 @@ def create_classifier(
     return model
 
 
-def create_dataset(configs: dict) -> Patients:
+def create_dataset(configs: dict, verbose: bool = True) -> Patients:
     dataset = Patients(
         split=runtime_constants.TRAIN_TEST_SPLIT,
         positives=runtime_constants.PATH_POSITIVE_CLASS,
@@ -265,9 +269,12 @@ def create_dataset(configs: dict) -> Patients:
     )
 
     for k, v in dataset.files_by_category().items():
-        printf(f"{k} Data: {v} Entries", severity="INFO")
+        if verbose:
+            printf(f"{k} Data: {v} Entries", severity="INFO")
 
-    printf("Data loaded.  Commencing Training.")
+    if verbose:
+        printf("Data loaded.  Commencing Training.")
+
     return dataset
 
 
@@ -296,7 +303,7 @@ def iterate_through_files(
     # type ignore as dataset inherits torch.utils.data.Dataset, which is an iterable
     for idx, (label, df) in enumerate(dataset):  # type: ignore
         printf(f"Processing File {idx} / {len(dataset)}.  True Label {label}")
-        pred = classifier(calculate_embeddings(df, configs))
+        pred = classifier(calculate_embeddings(df, configs, dataset.get_ext()))
         loss = runtime_constants.CRITERION(pred, create_label(label, pred))
 
         current_epoch_records["pred"].append(pred.item())
@@ -440,3 +447,18 @@ def export_constants(copy_to: Path) -> None:
 
     with open(copy_to, "w") as f:
         json.dump(constants, f)
+
+
+def output_extension_type(dataset: Patients) -> None:
+    if logger is None:
+        raise ValueError("Logger not instantiated.")
+
+    match dataset.get_ext():
+        case ".tsv":
+            logger.write("Raw Un-Embedded File Recognised in Dataset.")
+
+        case ".pq":
+            logger.write("Embedded File Recognised.")
+
+        case _:
+            raise ValueError("Unrecognised extension.")

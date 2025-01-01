@@ -77,7 +77,9 @@ def run(
         df: pd.DataFrame
         for idx, (label, fname, df) in enumerate(dataset):  # type: ignore
             utils.printf(f"Processing File {idx} / {len(dataset)}.  True Label {label}")
-            pred = best_model(utils.calculate_embeddings(df, configs)).item()
+            pred = best_model(
+                utils.calculate_embeddings(df, configs, dataset.get_ext())
+            ).item()
             utils.printf(f"File {idx} / {len(dataset)}: Predicted Value: {pred}")
 
             dct_interpretability_record["filename"].append(fname)

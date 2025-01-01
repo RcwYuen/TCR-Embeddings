@@ -45,6 +45,7 @@ if __name__ == "__main__":
         classifier = utils.create_classifier(configs)
         optim = utils.create_optimiser(classifier)
         dataset = utils.create_dataset(configs)
+        utils.output_extension_type(dataset)
 
         # Creating Training Records
         loss_record: dict[str, list[float]] = {"train": [], "val": [], "test": []}

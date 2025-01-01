@@ -36,7 +36,7 @@ class test_train_utils(unittest.TestCase):
                 ).tolist()[0]
 
                 ls_encoded_test = utils.calculate_embeddings(
-                    runtime_constants.DF_SAMPLE, temp_config
+                    runtime_constants.DF_SAMPLE, temp_config, ".tsv"
                 ).tolist()[0]
 
                 for i, j in zip(ls_encoded, ls_encoded_test):
@@ -48,7 +48,7 @@ class test_train_utils(unittest.TestCase):
         runtime_constants.USE_CUDA = True
         if torch.cuda.is_available():
             tensor = utils.calculate_embeddings(
-                runtime_constants.DF_SAMPLE, configs=utils.load_configs({})
+                runtime_constants.DF_SAMPLE, configs=utils.load_configs({}), ext=".tsv"
             )
             self.assertNotEqual(tensor.get_device(), -1)
 
@@ -62,7 +62,7 @@ class test_train_utils(unittest.TestCase):
 
         if torch.cuda.is_available():
             tensor = utils.calculate_embeddings(
-                runtime_constants.DF_SAMPLE, configs=utils.load_configs({})
+                runtime_constants.DF_SAMPLE, configs=utils.load_configs({}), ext=".tsv"
             )
             self.assertEqual(tensor.get_device(), -1)
 
