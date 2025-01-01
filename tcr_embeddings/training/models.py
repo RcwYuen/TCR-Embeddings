@@ -27,8 +27,8 @@ class MIClassifier(torch.nn.Module):
         return self.sig(self.classifying(aggregated))
 
 
-def reduced_classifier() -> MIClassifier:
-    model = MIClassifier(5)
+def reduced_classifier(reduce_to: int = 5) -> MIClassifier:
+    model = MIClassifier(reduce_to)
     return (
         model.cuda()
         if torch.cuda.is_available() and runtime_constants.USE_CUDA

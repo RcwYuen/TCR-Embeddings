@@ -2,5 +2,6 @@
     "output-path": "results/aaprop-johnson-lindenstarauss/kfold-1",
     "kfold": 1,
     "encoding": "aaprop",
-    "reduction": "johnson-lindenstarauss"
+    "reduction": "johnson-lindenstarauss",
+    "use-pre-embedded-if-possible": true
 }

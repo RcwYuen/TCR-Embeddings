@@ -2,5 +2,6 @@
     "output-path": "results/sceptr-default-no-reduction/kfold-0",
     "kfold": 0,
     "encoding": "sceptr-default",
-    "reduction": "no-reduction"
+    "reduction": "no-reduction",
+    "use-pre-embedded-if-possible": true
 }

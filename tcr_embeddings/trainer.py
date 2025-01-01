@@ -41,6 +41,12 @@ if __name__ == "__main__":
         utils.printf("Arguments: python " + " ".join(sys.argv), severity="INFO")
         utils.printf_cuda_configs()
 
+        if utils.validate_can_use_pre_embedded(configs):
+            (
+                runtime_constants.PATH_POSITIVE_CLASS,
+                runtime_constants.PATH_NEGATIVE_CLASS,
+            ) = utils.get_pre_embed_path(configs)
+
         np.random.seed(runtime_constants.RAND_SEED)
         classifier = utils.create_classifier(configs)
         optim = utils.create_optimiser(classifier)

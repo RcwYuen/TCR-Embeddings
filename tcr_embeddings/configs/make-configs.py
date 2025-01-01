@@ -25,6 +25,7 @@ if __name__ == "__main__":
                 config["kfold"] = fold
                 config["output-path"] = f"results/{encoding}-{reduction}/kfold-{fold}"
                 config["reduction"] = reduction
+                config["use-pre-embedded-if-possible"] = True
 
                 with open(store_location / f"kfold-{fold}.json", "w") as f:
                     f.write(json.dumps(config, indent=4))

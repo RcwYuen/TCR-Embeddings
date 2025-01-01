@@ -2,5 +2,6 @@
     "output-path": "results/atchley-johnson-lindenstarauss/kfold-3",
     "kfold": 3,
     "encoding": "atchley",
-    "reduction": "johnson-lindenstarauss"
+    "reduction": "johnson-lindenstarauss",
+    "use-pre-embedded-if-possible": true
 }

@@ -2,5 +2,6 @@
     "output-path": "results/aaprop-no-reduction/kfold-2",
     "kfold": 2,
     "encoding": "aaprop",
-    "reduction": "no-reduction"
+    "reduction": "no-reduction",
+    "use-pre-embedded-if-possible": true
 }

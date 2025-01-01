@@ -1,11 +1,11 @@
 {
     "PATH_POSITIVE_CLASS": [
-        "data/tcvhcw/embedded/sceptr-tiny"
+        "data/tcvhcw/cleaned"
     ],
     "PATH_NEGATIVE_CLASS": [
-        "data/Tx/embedded/sceptr-tiny"
+        "data/Tx/cleaned"
     ],
-    "EPOCHS": 100,
+    "EPOCHS": 500,
     "LR": 0.025,
     "TRAIN_TEST_SPLIT": 1,
     "ACCUMMULATION": 4,

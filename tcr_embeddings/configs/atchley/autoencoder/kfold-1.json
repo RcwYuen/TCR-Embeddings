@@ -2,5 +2,6 @@
     "output-path": "results/atchley-autoencoder/kfold-1",
     "kfold": 1,
     "encoding": "atchley",
-    "reduction": "autoencoder"
+    "reduction": "autoencoder",
+    "use-pre-embedded-if-possible": true
 }

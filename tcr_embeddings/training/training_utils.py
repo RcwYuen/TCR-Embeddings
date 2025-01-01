@@ -6,6 +6,7 @@ import os
 import sys
 import time
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -175,6 +176,7 @@ def load_default_configs(write: bool = False) -> dict:
         "kfold": 0,
         "encoding": "atchley",
         "reduction": "no-reduction",
+        "use-pre-embedded-if-possible": True,
     }
 
     if write:
@@ -445,7 +447,7 @@ def export_constants(copy_to: Path) -> None:
     with open(runtime_constants.HOME_PATH / "tcr_embeddings/constants.json", "r") as f:
         constants = json.load(f)
 
-    with open(copy_to, "w") as f:
+    with open(copy_to / "constants.json", "w") as f:
         json.dump(constants, f)
 
 
@@ -462,3 +464,60 @@ def output_extension_type(dataset: Patients) -> None:
 
         case _:
             raise ValueError("Unrecognised extension.")
+
+
+def validate_can_use_pre_embedded(configs: dict) -> bool:
+    ls_can_use = []
+    if configs["use-pre-embedded-if-possible"]:
+        for pth in (
+            runtime_constants.PATH_NEGATIVE_CLASS
+            + runtime_constants.PATH_POSITIVE_CLASS
+        ):
+            pre_embed_path = (
+                (Path.cwd() / pth).parent
+                / runtime_constants.PRE_EMBED_PATH
+                / configs["encoding"]
+            )
+            if pre_embed_path.exists():
+                ls_training_paths = list((Path.cwd() / pth).glob("*.tsv"))
+                ls_pre_embedded = list(pre_embed_path.glob("*.pq"))
+
+                ls_can_use.append(
+                    len(ls_training_paths) == len(ls_pre_embedded)
+                    and (pre_embed_path / "kfold.txt").exists()
+                )
+
+    return all(ls_can_use) if len(ls_can_use) != 0 else False
+
+
+def get_pre_embed_path(configs: dict) -> tuple[list[Any], list[Any]]:
+    ls_positives = [
+        (Path.cwd() / pth).parent
+        / runtime_constants.PRE_EMBED_PATH
+        / configs["encoding"]
+        for pth in runtime_constants.PATH_POSITIVE_CLASS
+    ]
+    ls_negatives = [
+        (Path.cwd() / pth).parent
+        / runtime_constants.PRE_EMBED_PATH
+        / configs["encoding"]
+        for pth in runtime_constants.PATH_NEGATIVE_CLASS
+    ]
+
+    return ls_positives, ls_negatives
+
+
+def get_original_path(fname: Path) -> Path:
+    with open(runtime_constants.HOME_PATH / "tcr_embeddings/constants.json", "r") as f:
+        original_configs = json.load(f)
+
+    for path in (
+        original_configs["PATH_POSITIVE_CLASS"]
+        + original_configs["PATH_NEGATIVE_CLASS"]
+    ):
+        if (runtime_constants.HOME_PATH / path).parent == fname.parent.parent.parent:
+            return (
+                runtime_constants.HOME_PATH / path / fname.name.replace(".pq", ".tsv")
+            )
+
+    raise ValueError("Cannot Find associated path given original path.")

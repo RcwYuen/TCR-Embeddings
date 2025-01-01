@@ -2,5 +2,6 @@
     "output-path": "results/kidera-johnson-lindenstarauss/kfold-2",
     "kfold": 2,
     "encoding": "kidera",
-    "reduction": "johnson-lindenstarauss"
+    "reduction": "johnson-lindenstarauss",
+    "use-pre-embedded-if-possible": true
 }

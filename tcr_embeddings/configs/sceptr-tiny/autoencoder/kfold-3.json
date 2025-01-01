@@ -2,5 +2,6 @@
     "output-path": "results/sceptr-tiny-autoencoder/kfold-3",
     "kfold": 3,
     "encoding": "sceptr-tiny",
-    "reduction": "autoencoder"
+    "reduction": "autoencoder",
+    "use-pre-embedded-if-possible": true
 }

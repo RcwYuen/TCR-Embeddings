@@ -92,9 +92,16 @@ def run(
                 )
                 ls_nonzero_idx = torch.nonzero(best_model.last_weights)[:, 0]
                 ls_ws = best_model.last_weights[ls_nonzero_idx][:, 0].tolist()
-                df_nonzero_idx = df.iloc[ls_nonzero_idx.tolist()].copy()
+                df_nonzero_idx = (
+                    pd.read_csv(utils.get_original_path(fname), sep="\t", dtype=str)
+                    if dataset.get_ext() == ".pq"
+                    else df.copy()
+                )
+                df_nonzero_idx = df_nonzero_idx.iloc[ls_nonzero_idx.tolist()].copy()
                 df_nonzero_idx["assigned_weights"] = ls_ws
-                df_nonzero_idx.to_parquet(outpath / fname.name.replace(".tsv", ".pq"))
+                df_nonzero_idx.infer_objects().to_parquet(
+                    outpath / fname.name.replace(".tsv", ".pq")
+                )
 
             else:
                 utils.printf(f"File {idx} / {len(dataset)}: Incorrect Prediction.")

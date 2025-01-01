@@ -2,5 +2,6 @@
     "output-path": "results/rand-johnson-lindenstarauss/kfold-1",
     "kfold": 1,
     "encoding": "rand",
-    "reduction": "johnson-lindenstarauss"
+    "reduction": "johnson-lindenstarauss",
+    "use-pre-embedded-if-possible": true
 }

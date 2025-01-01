@@ -2,5 +2,6 @@
     "output-path": "results/aaprop-autoencoder/kfold-3",
     "kfold": 3,
     "encoding": "aaprop",
-    "reduction": "autoencoder"
+    "reduction": "autoencoder",
+    "use-pre-embedded-if-possible": true
 }

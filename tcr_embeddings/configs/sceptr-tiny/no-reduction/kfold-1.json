@@ -2,5 +2,6 @@
     "output-path": "results/sceptr-tiny-no-reduction/kfold-1",
     "kfold": 1,
     "encoding": "sceptr-tiny",
-    "reduction": "no-reduction"
+    "reduction": "no-reduction",
+    "use-pre-embedded-if-possible": true
 }

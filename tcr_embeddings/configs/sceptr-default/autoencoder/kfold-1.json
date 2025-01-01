@@ -2,5 +2,6 @@
     "output-path": "results/sceptr-default-autoencoder/kfold-1",
     "kfold": 1,
     "encoding": "sceptr-default",
-    "reduction": "autoencoder"
+    "reduction": "autoencoder",
+    "use-pre-embedded-if-possible": true
 }
